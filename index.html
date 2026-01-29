@@ -520,6 +520,16 @@
 
         <div class="scores-grid" id="scoresGrid"></div>
 
+        <div id="recommendationsSection" class="answers-section" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; margin-bottom: 30px;">
+          <h2 style="color: #0c4a6e; display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            💡 Recommended Next Steps
+          </h2>
+          <p style="color: #075985; margin-bottom: 20px; font-size: 0.95rem;">
+            Based on the pain points identified, consider running discovery on these additional solutions:
+          </p>
+          <div id="recommendationsContainer"></div>
+        </div>
+
         <div class="answers-section">
           <h2>📋 Your Answers</h2>
           <div id="answersContainer"></div>
@@ -768,6 +778,60 @@
         followUp: 'How does self-check-in influence throughput, staffing needs, or visitor satisfaction and what is the ROI?',
         options: ['over 50%', '25-50%', 'under 25%'],
         scoreMap: { 'over 50%': 1, '25-50%': 2, 'under 25%': 3 }
+      },
+      {
+        id: 'visitor_sso_requirement',
+        product: 'visitor',
+        category: 'Implementation & Professional Services',
+        question: 'Do you require Single Sign-On (SSO) integration for visitor management?',
+        followUp: 'What authentication systems do you currently use?',
+        options: ['yes required', 'preferred', 'not needed'],
+        scoreMap: { 'yes required': 3, 'preferred': 2, 'not needed': 1 }
+      },
+      {
+        id: 'visitor_acs_integration',
+        product: 'visitor',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need Access Control System (ACS) integration with visitor management?',
+        followUp: 'What ACS system do you currently use?',
+        options: ['yes required', 'exploring', 'not needed'],
+        scoreMap: { 'yes required': 3, 'exploring': 2, 'not needed': 1 }
+      },
+      {
+        id: 'visitor_api_access',
+        product: 'visitor',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need API access for custom integrations or data export?',
+        followUp: 'What systems need to integrate with visitor management?',
+        options: ['yes required', 'maybe', 'not needed'],
+        scoreMap: { 'yes required': 3, 'maybe': 2, 'not needed': 1 }
+      },
+      {
+        id: 'visitor_wifi_integration',
+        product: 'visitor',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need Wi-Fi provisioning integration for guest network access?',
+        followUp: 'How do visitors currently get Wi-Fi access?',
+        options: ['yes required', 'nice to have', 'not needed'],
+        scoreMap: { 'yes required': 3, 'nice to have': 2, 'not needed': 1 }
+      },
+      {
+        id: 'visitor_training_needs',
+        product: 'visitor',
+        category: 'Implementation & Professional Services',
+        question: 'What level of training do you need for visitor management?',
+        followUp: 'How many administrators and front desk staff need training?',
+        options: ['comprehensive training', 'admin only', 'self-service'],
+        scoreMap: { 'comprehensive training': 3, 'admin only': 2, 'self-service': 1 }
+      },
+      {
+        id: 'visitor_workflow_customization',
+        product: 'visitor',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need custom visitor workflows or business rules configuration?',
+        followUp: 'What unique visitor types or approval processes do you have?',
+        options: ['complex customization', 'some customization', 'standard workflows'],
+        scoreMap: { 'complex customization': 3, 'some customization': 2, 'standard workflows': 1 }
       },
       {
         id: 'collaboration_frequency',
@@ -1121,6 +1185,78 @@
         scoreMap: { 'significant time saved': 1, 'some time saved': 2, 'still manual': 3 }
       },
       {
+        id: 'workplace_modules_needed',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Which workplace modules do you need: Space, Move, Reservation, Service Request, Office Asset?',
+        followUp: 'What are your top 3 priorities for workplace management?',
+        options: ['need all modules', 'need 3-4 modules', 'need 1-2 modules'],
+        scoreMap: { 'need all modules': 3, 'need 3-4 modules': 2, 'need 1-2 modules': 1 }
+      },
+      {
+        id: 'workplace_exchange_integration',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need Microsoft Exchange or Google Calendar integration?',
+        followUp: 'What calendar system does your organization use?',
+        options: ['yes required', 'exploring', 'not needed'],
+        scoreMap: { 'yes required': 3, 'exploring': 2, 'not needed': 1 }
+      },
+      {
+        id: 'workplace_badge_integration',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need badge system integration for occupancy tracking?',
+        followUp: 'What badge or access control system do you use?',
+        options: ['yes required', 'interested', 'not needed'],
+        scoreMap: { 'yes required': 3, 'interested': 2, 'not needed': 1 }
+      },
+      {
+        id: 'workplace_sensor_integration',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need sensor integration for real-time occupancy data?',
+        followUp: 'Do you have sensors deployed or plan to deploy them?',
+        options: ['yes have sensors', 'planning deployment', 'not needed'],
+        scoreMap: { 'yes have sensors': 3, 'planning deployment': 2, 'not needed': 1 }
+      },
+      {
+        id: 'workplace_servicenow_integration',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need ServiceNow integration for service requests?',
+        followUp: 'What ticketing system do you currently use?',
+        options: ['yes ServiceNow', 'other system', 'no integration'],
+        scoreMap: { 'yes ServiceNow': 3, 'other system': 2, 'no integration': 1 }
+      },
+      {
+        id: 'workplace_floorplan_count',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'How many building floorplans need to be created or imported?',
+        followUp: 'Do you have CAD files or require drafting services?',
+        options: ['over 20 floors', '5-20 floors', 'under 5 floors'],
+        scoreMap: { 'over 20 floors': 3, '5-20 floors': 2, 'under 5 floors': 1 }
+      },
+      {
+        id: 'workplace_mobile_app',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need the Hummingbird mobile app for employee workspace booking?',
+        followUp: 'What percentage of employees would use a mobile app?',
+        options: ['yes critical', 'nice to have', 'not needed'],
+        scoreMap: { 'yes critical': 3, 'nice to have': 2, 'not needed': 1 }
+      },
+      {
+        id: 'workplace_data_migration',
+        product: 'workplace',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need data migration from existing workplace management systems?',
+        followUp: 'What systems are you migrating from?',
+        options: ['complex migration', 'simple migration', 'greenfield'],
+        scoreMap: { 'complex migration': 3, 'simple migration': 2, 'greenfield': 1 }
+      },
+      {
         id: 'equipment_downtime',
         product: 'asset',
         category: 'Operational Efficiency',
@@ -1382,6 +1518,78 @@
         scoreMap: { 'very reliable': 1, 'mostly reliable': 2, 'unreliable': 3 }
       },
       {
+        id: 'asset_modules_needed',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'Which CMMS modules do you need: Assets, Work Orders, PM, Inventory, Inspections?',
+        followUp: 'What are your top priorities for asset management?',
+        options: ['need all modules', 'need 3-4 modules', 'need 1-2 modules'],
+        scoreMap: { 'need all modules': 3, 'need 3-4 modules': 2, 'need 1-2 modules': 1 }
+      },
+      {
+        id: 'asset_fleet_integration',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need fleet GPS integration (GEOTAB, GPS Insights, Zonar, etc.)?',
+        followUp: 'What fleet management system do you currently use?',
+        options: ['yes required', 'interested', 'not applicable'],
+        scoreMap: { 'yes required': 3, 'interested': 2, 'not applicable': 1 }
+      },
+      {
+        id: 'asset_equipment_brands',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need equipment manufacturer integration (John Deere, Volvo, VisionLink)?',
+        followUp: 'What equipment brands make up your fleet?',
+        options: ['yes multiple brands', 'yes single brand', 'not needed'],
+        scoreMap: { 'yes multiple brands': 3, 'yes single brand': 2, 'not needed': 1 }
+      },
+      {
+        id: 'asset_historical_data',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need historical work order data migrated from existing systems?',
+        followUp: 'How many years of historical data do you want to preserve?',
+        options: ['yes 3+ years', 'yes 1-2 years', 'fresh start'],
+        scoreMap: { 'yes 3+ years': 3, 'yes 1-2 years': 2, 'fresh start': 1 }
+      },
+      {
+        id: 'asset_custom_fields',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need extensive custom fields or data restructuring for your asset tracking?',
+        followUp: 'What unique data points do you track that are not standard?',
+        options: ['extensive customization', 'some customization', 'standard fields ok'],
+        scoreMap: { 'extensive customization': 3, 'some customization': 2, 'standard fields ok': 1 }
+      },
+      {
+        id: 'asset_api_requirements',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need API access for custom integrations with other business systems?',
+        followUp: 'What systems need to integrate with your CMMS?',
+        options: ['yes multiple systems', 'yes one system', 'not needed'],
+        scoreMap: { 'yes multiple systems': 3, 'yes one system': 2, 'not needed': 1 }
+      },
+      {
+        id: 'asset_training_scope',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'What is your asset management training requirement?',
+        followUp: 'How many administrators, supervisors, and technicians need training?',
+        options: ['comprehensive all roles', 'admin and supervisors', 'admin only'],
+        scoreMap: { 'comprehensive all roles': 3, 'admin and supervisors': 2, 'admin only': 1 }
+      },
+      {
+        id: 'asset_inventory_warehouses',
+        product: 'asset',
+        category: 'Implementation & Professional Services',
+        question: 'How many inventory warehouses or stockrooms need to be configured?',
+        followUp: 'How complex is your parts inventory management?',
+        options: ['5+ warehouses', '2-4 warehouses', '0-1 warehouse'],
+        scoreMap: { '5+ warehouses': 3, '2-4 warehouses': 2, '0-1 warehouse': 1 }
+      },
+      {
         id: 'sensor_usage',
         product: 'engage',
         category: 'Decision-Making Clarity',
@@ -1560,6 +1768,78 @@
         followUp: 'How does lack of mobile access impact employee experience and booking adoption?',
         options: ['over 50%', '25-50%', 'under 25%'],
         scoreMap: { 'over 50%': 1, '25-50%': 2, 'under 25%': 3 }
+      },
+      {
+        id: 'engage_m365_integration',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need Microsoft 365 or Google Workspace integration for booking?',
+        followUp: 'What collaboration platform does your organization use?',
+        options: ['yes critical', 'preferred', 'not needed'],
+        scoreMap: { 'yes critical': 3, 'preferred': 2, 'not needed': 1 }
+      },
+      {
+        id: 'engage_hardware_deployment',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need meeting room screens, kiosks, or desk screens deployed?',
+        followUp: 'How many locations and rooms need hardware?',
+        options: ['50+ screens', '10-50 screens', 'under 10 screens'],
+        scoreMap: { '50+ screens': 3, '10-50 screens': 2, 'under 10 screens': 1 }
+      },
+      {
+        id: 'engage_sensor_deployment',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need occupancy sensors deployed for real-time space analytics?',
+        followUp: 'How many rooms and desks need sensor coverage?',
+        options: ['100+ sensors', '25-100 sensors', 'under 25 sensors'],
+        scoreMap: { '100+ sensors': 3, '25-100 sensors': 2, 'under 25 sensors': 1 }
+      },
+      {
+        id: 'engage_data_analytics',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need advanced data analytics and custom dashboards?',
+        followUp: 'What specific metrics and KPIs does leadership need to see?',
+        options: ['advanced analytics', 'standard reporting', 'basic metrics'],
+        scoreMap: { 'advanced analytics': 3, 'standard reporting': 2, 'basic metrics': 1 }
+      },
+      {
+        id: 'engage_floorplan_configuration',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'How many building floorplans need configuration for interactive booking?',
+        followUp: 'Do you have CAD files or need drafting services?',
+        options: ['20+ floors', '5-20 floors', 'under 5 floors'],
+        scoreMap: { '20+ floors': 3, '5-20 floors': 2, 'under 5 floors': 1 }
+      },
+      {
+        id: 'engage_visitor_integration',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need integration between employee booking and visitor management?',
+        followUp: 'How important is unified visitor and employee experience?',
+        options: ['yes critical', 'nice to have', 'separate systems ok'],
+        scoreMap: { 'yes critical': 3, 'nice to have': 2, 'separate systems ok': 1 }
+      },
+      {
+        id: 'engage_workplace_integration',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'Do you need integration with workplace management for moves and space planning?',
+        followUp: 'How do you currently handle office moves and reconfigurations?',
+        options: ['yes required', 'exploring', 'not needed'],
+        scoreMap: { 'yes required': 3, 'exploring': 2, 'not needed': 1 }
+      },
+      {
+        id: 'engage_training_scope',
+        product: 'engage',
+        category: 'Implementation & Professional Services',
+        question: 'What training approach do you need for employee engagement rollout?',
+        followUp: 'How many locations and employees need training?',
+        options: ['train the trainer', 'admin training', 'self-service'],
+        scoreMap: { 'train the trainer': 3, 'admin training': 2, 'self-service': 1 }
       }
     ];
 
@@ -1598,6 +1878,11 @@
         Low: 'Some cost avoidance potential exists through better space management and maintenance optimization. Focus on preventative strategies to reduce reactive spending. Solutions: Shift to preventative maintenance (target 70%+ vs reactive), optimize cleaning schedules by floor utilization, and implement energy alignment with occupancy.',
         Medium: 'Medium savings opportunity—consolidation and automation could unlock significant cost reductions. Typical savings range from 15-25% on operational expenses. Value drivers: Labor reduction, space savings, technology consolidation, vendor reduction. Solutions: Automated service requests reduce avg cost from $15+ to under $10 per request, departmental chargebacks drive accountability, and optimized work orders minimize unnecessary labor and material costs.',
         High: 'High impact—portfolio optimization yields $150-$900 per seat/room monthly in avoided costs. Energy alignment saves 10-15%, preventative maintenance reduces emergency costs by 30-40%. Value drivers: Operational efficiency gains, reduced manual processing, condition monitoring delays capital replacements. Solutions: Identify underutilized areas for sublease or consolidation (every empty desk costs $33/sq ft annually), close under-occupied floors on low-usage days to save nightly cleaning costs, optimize HVAC/lighting with occupancy data (up to 15% energy savings), and implement real-time parts inventory to eliminate emergency orders and excess stock.'
+      },
+      'Implementation & Professional Services': {
+        Low: 'Standard implementation with minimal customization. Basic configuration and self-service training materials will likely suffice. Estimated implementation: 4-8 weeks with standard modules and features.',
+        Medium: 'Moderate complexity requiring some integrations, custom workflows, and structured training. Consider API consulting, badge/calendar integration, and administrator workshops. Estimated implementation: 8-16 weeks with multiple modules, 1-2 integrations, and moderate data migration.',
+        High: 'Complex implementation requiring extensive customization, multiple integrations, hardware deployment, or significant data migration. Recommend comprehensive PS package including: custom integration consulting, extensive training (train-the-trainer), floorplan drafting services, advanced analytics setup, and dedicated implementation support. Estimated implementation: 16-24+ weeks with full module suite, 3+ integrations, hardware deployment, and complex business rules.'
       }
     };
 
@@ -1883,6 +2168,182 @@
       return averages;
     }
     
+    function generateRecommendations(categoryScores) {
+      var recommendations = [];
+      var currentProduct = state.currentProduct;
+      
+      // Recommendation logic based on category scores
+      var highMediumCategories = [];
+      for (var category in categoryScores) {
+        if (categoryScores[category].level === 'High' || categoryScores[category].level === 'Medium') {
+          highMediumCategories.push(category);
+        }
+      }
+      
+      // Visitor Management recommendations
+      if (currentProduct === 'visitor') {
+        if (highMediumCategories.indexOf('Operational Efficiency') !== -1) {
+          recommendations.push({
+            product: 'asset',
+            productName: 'Asset Management',
+            reason: 'High operational efficiency concerns suggest opportunities in maintenance workflows and work order optimization.',
+            color: '#456ED6'
+          });
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Operational efficiency pain points often extend to space management and service request workflows.',
+            color: '#D48026'
+          });
+        }
+        if (highMediumCategories.indexOf('Employee Experience') !== -1) {
+          recommendations.push({
+            product: 'engage',
+            productName: 'Employee Engagement',
+            reason: 'Employee experience issues with visitors suggest broader workplace experience challenges with booking and collaboration.',
+            color: '#26A199'
+          });
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Visitor experience issues often correlate with overall workspace satisfaction and booking friction.',
+            color: '#D48026'
+          });
+        }
+        if (highMediumCategories.indexOf('Security & Compliance') !== -1) {
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Security and compliance concerns extend to badge integration, occupancy tracking, and emergency protocols.',
+            color: '#D48026'
+          });
+        }
+      }
+      
+      // Workplace Management recommendations
+      if (currentProduct === 'workplace') {
+        if (highMediumCategories.indexOf('Operational Efficiency') !== -1) {
+          recommendations.push({
+            product: 'asset',
+            productName: 'Asset Management',
+            reason: 'Service request and maintenance inefficiencies indicate CMMS and work order optimization opportunities.',
+            color: '#456ED6'
+          });
+        }
+        if (highMediumCategories.indexOf('Cost Savings') !== -1) {
+          recommendations.push({
+            product: 'asset',
+            productName: 'Asset Management',
+            reason: 'Cost optimization goals align with preventative maintenance and asset lifecycle management.',
+            color: '#456ED6'
+          });
+        }
+        if (highMediumCategories.indexOf('Employee Experience') !== -1) {
+          recommendations.push({
+            product: 'engage',
+            productName: 'Employee Engagement',
+            reason: 'Workspace satisfaction issues suggest opportunities in hybrid work coordination and booking optimization.',
+            color: '#26A199'
+          });
+          recommendations.push({
+            product: 'visitor',
+            productName: 'Visitor Management',
+            reason: 'Employee experience challenges often include visitor hosting, meeting coordination, and front-desk operations.',
+            color: '#904AB0'
+          });
+        }
+        if (highMediumCategories.indexOf('Space Utilization') !== -1) {
+          recommendations.push({
+            product: 'engage',
+            productName: 'Employee Engagement',
+            reason: 'Utilization challenges require better booking systems, no-show reduction, and hybrid work coordination.',
+            color: '#26A199'
+          });
+        }
+      }
+      
+      // Asset Management recommendations
+      if (currentProduct === 'asset') {
+        if (highMediumCategories.indexOf('Operational Efficiency') !== -1) {
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Work order and service request inefficiencies extend to facilities management and space-related maintenance.',
+            color: '#D48026'
+          });
+        }
+        if (highMediumCategories.indexOf('Cost Savings') !== -1) {
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Cost optimization opportunities exist in space utilization, energy alignment, and real estate portfolio management.',
+            color: '#D48026'
+          });
+        }
+        if (highMediumCategories.indexOf('Decision-Making Clarity') !== -1) {
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Data and analytics gaps affect both asset and space planning decisions. Unified visibility drives better ROI.',
+            color: '#D48026'
+          });
+        }
+      }
+      
+      // Employee Engagement recommendations
+      if (currentProduct === 'engage') {
+        if (highMediumCategories.indexOf('Employee Experience') !== -1) {
+          recommendations.push({
+            product: 'visitor',
+            productName: 'Visitor Management',
+            reason: 'Employee experience includes hosting visitors, meeting coordination, and creating professional brand impressions.',
+            color: '#904AB0'
+          });
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Booking friction and workspace satisfaction require integrated facilities management and service request capabilities.',
+            color: '#D48026'
+          });
+        }
+        if (highMediumCategories.indexOf('Space Utilization') !== -1) {
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'No-show rates, ghost bookings, and utilization gaps require comprehensive space analytics and portfolio optimization.',
+            color: '#D48026'
+          });
+        }
+        if (highMediumCategories.indexOf('Operational Efficiency') !== -1) {
+          recommendations.push({
+            product: 'workplace',
+            productName: 'Workplace Management',
+            reason: 'Support tickets, service requests, and maintenance workflows can be streamlined with unified facilities management.',
+            color: '#D48026'
+          });
+          recommendations.push({
+            product: 'asset',
+            productName: 'Asset Management',
+            reason: 'Operational efficiency extends to equipment maintenance, work order optimization, and technician productivity.',
+            color: '#456ED6'
+          });
+        }
+      }
+      
+      // Remove duplicates and limit to top 2-3 recommendations
+      var uniqueRecs = [];
+      var seen = {};
+      for (var i = 0; i < recommendations.length; i++) {
+        if (!seen[recommendations[i].product]) {
+          uniqueRecs.push(recommendations[i]);
+          seen[recommendations[i].product] = true;
+        }
+        if (uniqueRecs.length >= 3) break;
+      }
+      
+      return uniqueRecs;
+    }
+    
     function generatePDF() {
       var jsPDF = window.jspdf.jsPDF;
       var doc = new jsPDF();
@@ -2022,6 +2483,10 @@
       pdfBtn.onclick = generatePDF;
       
       var categoryScores = calculateScores();
+      
+      // Generate product recommendations
+      var recommendations = generateRecommendations(categoryScores);
+      
       var scoresGrid = document.getElementById('scoresGrid');
       scoresGrid.innerHTML = '';
       
@@ -2038,6 +2503,37 @@
         card.innerHTML = '<div class="score-header"><h3>' + category + '</h3><span class="impact-badge">' + data.level + ' Impact</span></div><div class="score-value">📊 Score: ' + data.score.toFixed(2) + '</div><div class="talking-point">' + talkingPoint + '</div>';
         
         scoresGrid.appendChild(card);
+      }
+      
+      // Display recommendations
+      var recContainer = document.getElementById('recommendationsContainer');
+      recContainer.innerHTML = '';
+      
+      if (recommendations.length > 0) {
+        document.getElementById('recommendationsSection').style.display = 'block';
+        
+        for (var i = 0; i < recommendations.length; i++) {
+          var rec = recommendations[i];
+          var recCard = document.createElement('div');
+          recCard.style.cssText = 'background: white; border-left: 4px solid ' + rec.color + '; padding: 20px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s;';
+          recCard.onmouseover = function() { this.style.transform = 'translateX(5px)'; this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; };
+          recCard.onmouseout = function() { this.style.transform = 'translateX(0)'; this.style.boxShadow = 'none'; };
+          
+          var recProduct = rec.product;
+          recCard.onclick = function() {
+            var prod = this.getAttribute('data-product');
+            if (confirm('Start discovery for ' + products[prod].name + '?')) {
+              selectProduct(prod);
+            }
+          };
+          recCard.setAttribute('data-product', recProduct);
+          
+          recCard.innerHTML = '<div style="display: flex; align-items: center; gap: 15px;"><div style="width: 50px; height: 50px; background: ' + rec.color + '; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold;">→</div><div style="flex: 1;"><div style="font-weight: 600; color: #1e293b; font-size: 1.1rem; margin-bottom: 5px;">' + rec.productName + '</div><div style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">' + rec.reason + '</div></div></div>';
+          
+          recContainer.appendChild(recCard);
+        }
+      } else {
+        document.getElementById('recommendationsSection').style.display = 'none';
       }
       
       var answersContainer = document.getElementById('answersContainer');
