@@ -469,6 +469,11 @@
             </div>
           </div>
 
+          <div class="category-header" id="categoryHeader" style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px;">
+            <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Category</div>
+            <div id="categoryHeaderTitle" style="font-size: 1.1rem; color: #1e293b; font-weight: 600; margin-top: 4px;"></div>
+          </div>
+
           <div class="category-badge" id="categoryBadge"></div>
           <h2 class="question-title" id="questionTitle"></h2>
           <p class="follow-up" id="followUp"></p>
@@ -1560,39 +1565,39 @@
 
     var talkingPoints = {
       'Operational Efficiency': {
-        Low: 'Processes are stable, but there is room to streamline reporting and reduce manual effort.',
-        Medium: 'Efficiency gaps are visible—automation and consolidation could free up significant time.',
-        High: 'High inefficiency signals urgent opportunity—others in your position reduced IT overhead by 15–20%.'
+        Low: 'Processes are stable, but there is room to streamline reporting and reduce manual effort. Consider automation opportunities to free up 10-15% of staff time. Solutions: Implement automated workflows, self-service options, and mobile work order access to boost productivity.',
+        Medium: 'Efficiency gaps are visible—automation and consolidation could free up significant time. Organizations typically see 20-30% reduction in manual tasks with proper systems. Value drivers: Reduced processing costs, faster service delivery, and improved technician wrench time. Solutions: Auto-routing, smart alternatives for bookings, and centralized work order management.',
+        High: 'High inefficiency signals urgent opportunity—others in your position reduced IT overhead by 15–20% and saved 30-40% on administrative costs. Value drivers: Eliminate manual entry, reduce support tickets by 20-30%, and optimize resource allocation. Solutions: Unified reservations, automated PM scheduling, SSO integration, and mobile access to work orders/manuals boost productivity significantly.'
       },
       'Employee Experience': {
-        Low: 'Employees are generally satisfied, but booking friction may still cause frustration.',
-        Medium: 'Experience is mixed—streamlining booking and reducing no-shows could lift satisfaction scores.',
-        High: 'High impact on experience—teams with similar challenges saw 20–25% EX/NPS improvement.'
+        Low: 'Employees are generally satisfied, but booking friction may still cause frustration. Small improvements can boost retention and reduce time wasted by 5-10 minutes per booking. Solutions: Streamline booking flows, add wayfinding, and enable personalized workspace preferences.',
+        Medium: 'Experience is mixed—streamlining booking and reducing no-shows could lift satisfaction scores. Organizations see 15-20% improvement in employee engagement. Value drivers: Fair access to spaces, predictable collaboration days, reduced booking conflicts. Solutions: Workweek assignments, team days, unified mobile/web booking, and real-time host notifications create low-friction office experiences worth the commute.',
+        High: 'High impact on experience—teams with similar challenges saw 20–25% EX/NPS improvement and reduced turnover risk. Value drivers: Frictionless workplace access, simplified reservations, better resource availability, reduced wait times. Solutions: Microsoft 365 add-in for seamless booking, self-service kiosks with QR codes (80-90% check-in under 2 minutes), branded pre-arrival emails, multi-language support, and smart alternatives when conflicts occur.'
       },
       'Security & Compliance': {
-        Low: 'Compliance is strong, but monitoring accuracy can be tightened further.',
-        Medium: 'Medium risk—badge accuracy, visitor access, and tailgating incidents suggest gaps in workplace security.',
-        High: 'High impact—security lapses expose risk; stronger compliance and visitor controls reduce liability and improve safety.'
+        Low: 'Compliance is strong, but monitoring accuracy can be tightened further. Proactive measures prevent future audit issues and liability exposure. Solutions: Strengthen audit trails, implement badge compliance tracking, and tighten visitor screening protocols.',
+        Medium: 'Medium risk—badge accuracy, visitor access, and tailgating incidents suggest gaps in workplace security. Addressing these reduces incident rates by 20-30%. Value drivers: Regulatory adherence, incident tracking, access governance. Solutions: Pre-registration with ID verification, watchlist screening (0.1-0.5% match rate), real-time access logs, and evacuation list automation improve safety and reduce liability.',
+        High: 'High impact—security lapses expose significant risk. Stronger compliance reduces liability by 30-50%, avoids fines, and improves safety. Value drivers: Audit readiness, policy enforcement, data protection, real-time alerts. Solutions: Automated NDA sign-off before QR codes, badge integration for check-in/check-out, government ID integration for regulated environments, CMMS audit trails to avoid fines, and emergency communication systems to reach all visitors during critical events.'
       },
       'Decision-Making Clarity': {
-        Low: 'Data confidence is solid, but leaders may still want deeper visibility.',
-        Medium: 'Medium confidence—decisions may be riskier than they need to be.',
-        High: 'High impact—leaders lack clarity; accurate data enables confident portfolio decisions.'
+        Low: 'Data confidence is solid, but leaders may still want deeper visibility into utilization trends and portfolio performance. Solutions: Add real-time dashboards, trend analysis, and forecast accuracy tools for strategic planning.',
+        Medium: 'Medium confidence—decisions may be riskier than they need to be. Real-time analytics reduce forecasting errors by 25-35% and enable data-driven space planning. Value drivers: Centralized data, predictive insights, leadership visibility, trend identification. Solutions: Utilization & Trends dashboards with granular capacity ranges, weekday/floor-level views, People & Places KPIs, and analytics to optimize maintenance strategies.',
+        High: 'High impact—leaders lack clarity needed for confident portfolio decisions. Accurate data enables 10-15% real estate savings and prevents costly over-investment. Value drivers: Real-time reporting, cross-team alignment, forecasting needs, condition monitoring. Solutions: Envision KPIs for portfolio optimization, scenario modeling (Baseline vs. Engage vs. Engage+Presence), sensor data for occupancy validation, and Advanced Analytics with filters by location, floor, and weekday enable evidence-based decision-making.'
       },
       'Decision Making Clarity': {
-        Low: 'Data confidence is solid, but leaders may still want deeper visibility.',
-        Medium: 'Medium confidence—decisions may be riskier than they need to be.',
-        High: 'High impact—leaders lack clarity; accurate data enables confident portfolio decisions.'
+        Low: 'Data confidence is solid, but leaders may still want deeper visibility into utilization trends and portfolio performance. Solutions: Add real-time dashboards, trend analysis, and forecast accuracy tools for strategic planning.',
+        Medium: 'Medium confidence—decisions may be riskier than they need to be. Real-time analytics reduce forecasting errors by 25-35% and enable data-driven space planning. Value drivers: Centralized data, predictive insights, leadership visibility, trend identification. Solutions: Utilization & Trends dashboards with granular capacity ranges, weekday/floor-level views, People & Places KPIs, and analytics to optimize maintenance strategies.',
+        High: 'High impact—leaders lack clarity needed for confident portfolio decisions. Accurate data enables 10-15% real estate savings and prevents costly over-investment. Value drivers: Real-time reporting, cross-team alignment, forecasting needs, condition monitoring. Solutions: Envision KPIs for portfolio optimization, scenario modeling (Baseline vs. Engage vs. Engage+Presence), sensor data for occupancy validation, and Advanced Analytics with filters by location, floor, and weekday enable evidence-based decision-making.'
       },
       'Space Utilization': {
-        Low: 'Utilization is steady, but there may be hidden inefficiencies in portfolio costs.',
-        Medium: 'Medium utilization suggests opportunity to reclaim space and reduce wasted spend.',
-        High: 'High impact—organizations often see 10–15% real estate savings with improved utilization.'
+        Low: 'Utilization is steady, but there may be hidden inefficiencies in portfolio costs. Sensor data and analytics can reveal 5-10% optimization opportunities. Solutions: Deploy sensors for actual vs. booked tracking, implement automated space release, and analyze desk attributes driving highest utilization.',
+        Medium: 'Medium utilization suggests opportunity to reclaim space and reduce wasted spend. Organizations typically find 10-15% of space can be repurposed or consolidated. Value drivers: Accurate occupancy data, optimized room usage, desk utilization insights, right-sizing opportunities. Solutions: Automated check-in + space release to eliminate ghost bookings (30-50% reclaimed capacity), QR code alignment for accurate desk assignment, and weekday analytics to spot Tue-Thu peaks and flatten the mid-week hump.',
+        High: 'High impact—organizations often see 10–15% real estate savings with improved utilization, translating to $150-900 per seat/room monthly. Right-sizing prevents millions in unnecessary lease costs. Value drivers: Peak-time visibility, forecasting needs, portfolio optimization. Solutions: Badge integration for real attendance tracking, utilization dashboards by floor/location showing desk (45-65% baseline, target 60-75%) and room usage (50-70% baseline), dynamic reservations for hybrid work (60-70% adoption), and consolidation scenarios identifying 5-10% repurposing opportunities.'
       },
       'Cost Savings': {
-        Low: 'Some cost avoidance potential exists through better space management.',
-        Medium: 'Medium savings opportunity—consolidation could unlock significant real estate savings.',
-        High: 'High impact—portfolio optimization typically yields $150-$900 per seat/room per month in avoided costs.'
+        Low: 'Some cost avoidance potential exists through better space management and maintenance optimization. Focus on preventative strategies to reduce reactive spending. Solutions: Shift to preventative maintenance (target 70%+ vs reactive), optimize cleaning schedules by floor utilization, and implement energy alignment with occupancy.',
+        Medium: 'Medium savings opportunity—consolidation and automation could unlock significant cost reductions. Typical savings range from 15-25% on operational expenses. Value drivers: Labor reduction, space savings, technology consolidation, vendor reduction. Solutions: Automated service requests reduce avg cost from $15+ to under $10 per request, departmental chargebacks drive accountability, and optimized work orders minimize unnecessary labor and material costs.',
+        High: 'High impact—portfolio optimization yields $150-$900 per seat/room monthly in avoided costs. Energy alignment saves 10-15%, preventative maintenance reduces emergency costs by 30-40%. Value drivers: Operational efficiency gains, reduced manual processing, condition monitoring delays capital replacements. Solutions: Identify underutilized areas for sublease or consolidation (every empty desk costs $33/sq ft annually), close under-occupied floors on low-usage days to save nightly cleaning costs, optimize HVAC/lighting with occupancy data (up to 15% energy savings), and implement real-time parts inventory to eliminate emergency orders and excess stock.'
       }
     };
 
@@ -1650,68 +1655,93 @@
       var container = document.getElementById('allQuestionsContainer');
       container.innerHTML = '';
       
+      // Group questions by category
+      var categorizedQuestions = {};
       for (var i = 0; i < state.filteredQuestions.length; i++) {
         var q = state.filteredQuestions[i];
-        
-        var item = document.createElement('div');
-        item.className = 'question-list-item';
-        
-        var header = document.createElement('div');
-        header.className = 'question-list-header';
-        
-        var number = document.createElement('div');
-        number.className = 'question-list-number';
-        number.textContent = (i + 1);
-        number.style.background = products[state.currentProduct].color;
-        
-        var category = document.createElement('div');
-        category.className = 'question-list-category';
-        category.textContent = q.category;
-        
-        header.appendChild(number);
-        header.appendChild(category);
-        
-        var title = document.createElement('div');
-        title.className = 'question-list-title';
-        title.textContent = q.question;
-        
-        item.appendChild(header);
-        item.appendChild(title);
-        
-        if (q.followUp) {
-          var followUp = document.createElement('div');
-          followUp.className = 'question-list-followup';
-          followUp.textContent = 'Follow-up: ' + q.followUp;
-          item.appendChild(followUp);
+        if (!categorizedQuestions[q.category]) {
+          categorizedQuestions[q.category] = [];
         }
+        categorizedQuestions[q.category].push({question: q, index: i});
+      }
+      
+      var questionNumber = 1;
+      
+      // Render questions grouped by category
+      for (var category in categorizedQuestions) {
+        // Add category header
+        var categoryHeader = document.createElement('div');
+        categoryHeader.style.cssText = 'margin: 30px 0 20px 0; padding: 15px; background: #f8fafc; border-left: 4px solid ' + products[state.currentProduct].color + '; border-radius: 4px;';
+        categoryHeader.innerHTML = '<div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Category</div><div style="font-size: 1.2rem; color: #1e293b; font-weight: 600; margin-top: 4px;">' + category + '</div>';
+        container.appendChild(categoryHeader);
         
-        var optionsContainer = document.createElement('div');
-        optionsContainer.className = 'question-list-options';
-        
-        for (var j = 0; j < q.options.length; j++) {
-          var option = q.options[j];
-          var optionBtn = document.createElement('button');
-          optionBtn.className = 'list-option-button';
-          optionBtn.textContent = option;
-          optionBtn.setAttribute('data-question-id', q.id);
-          optionBtn.setAttribute('data-option', option);
+        var questions = categorizedQuestions[category];
+        for (var j = 0; j < questions.length; j++) {
+          var qData = questions[j];
+          var q = qData.question;
           
-          if (state.answers[q.id] === option) {
-            optionBtn.classList.add('selected');
-            optionBtn.style.background = products[state.currentProduct].color;
+          var item = document.createElement('div');
+          item.className = 'question-list-item';
+          
+          var header = document.createElement('div');
+          header.className = 'question-list-header';
+          
+          var number = document.createElement('div');
+          number.className = 'question-list-number';
+          number.textContent = questionNumber;
+          number.style.background = products[state.currentProduct].color;
+          
+          var categoryBadge = document.createElement('div');
+          categoryBadge.className = 'question-list-category';
+          categoryBadge.textContent = q.category;
+          
+          header.appendChild(number);
+          header.appendChild(categoryBadge);
+          
+          var title = document.createElement('div');
+          title.className = 'question-list-title';
+          title.textContent = q.question;
+          
+          item.appendChild(header);
+          item.appendChild(title);
+          
+          if (q.followUp) {
+            var followUp = document.createElement('div');
+            followUp.className = 'question-list-followup';
+            followUp.textContent = 'Follow-up: ' + q.followUp;
+            item.appendChild(followUp);
           }
           
-          optionBtn.addEventListener('click', function() {
-            var qId = this.getAttribute('data-question-id');
-            var opt = this.getAttribute('data-option');
-            selectAnswerList(qId, opt);
-          });
+          var optionsContainer = document.createElement('div');
+          optionsContainer.className = 'question-list-options';
           
-          optionsContainer.appendChild(optionBtn);
+          for (var k = 0; k < q.options.length; k++) {
+            var option = q.options[k];
+            var optionBtn = document.createElement('button');
+            optionBtn.className = 'list-option-button';
+            optionBtn.textContent = option;
+            optionBtn.setAttribute('data-question-id', q.id);
+            optionBtn.setAttribute('data-option', option);
+            
+            if (state.answers[q.id] === option) {
+              optionBtn.classList.add('selected');
+              optionBtn.style.background = products[state.currentProduct].color;
+            }
+            
+            optionBtn.addEventListener('click', function() {
+              var qId = this.getAttribute('data-question-id');
+              var opt = this.getAttribute('data-option');
+              selectAnswerList(qId, opt);
+            });
+            
+            optionsContainer.appendChild(optionBtn);
+          }
+          
+          item.appendChild(optionsContainer);
+          container.appendChild(item);
+          
+          questionNumber++;
         }
-        
-        item.appendChild(optionsContainer);
-        container.appendChild(item);
       }
       
       updateSubmitButton();
@@ -1744,6 +1774,19 @@
       document.getElementById('productName').textContent = products[state.currentProduct].name;
       document.getElementById('progressFill').style.width = progress + '%';
       document.getElementById('progressFill').style.background = products[state.currentProduct].color;
+      
+      // Show category header if category changed
+      var previousCategory = state.currentStep > 0 ? state.filteredQuestions[state.currentStep - 1].category : null;
+      var categoryHeader = document.getElementById('categoryHeader');
+      var categoryHeaderTitle = document.getElementById('categoryHeaderTitle');
+      
+      if (previousCategory !== question.category) {
+        categoryHeader.style.display = 'block';
+        categoryHeaderTitle.textContent = question.category;
+        categoryHeader.style.borderLeftColor = products[state.currentProduct].color;
+      } else {
+        categoryHeader.style.display = 'none';
+      }
       
       document.getElementById('categoryBadge').textContent = question.category;
       document.getElementById('questionTitle').textContent = question.question;
