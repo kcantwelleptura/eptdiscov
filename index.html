@@ -469,6 +469,11 @@
             </div>
           </div>
 
+          <div id="categoryNavigation" style="margin-bottom: 25px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 12px;">Jump to Category</div>
+            <div id="categoryButtons" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+          </div>
+
           <div class="category-header" id="categoryHeader" style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px;">
             <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Category</div>
             <div id="categoryHeaderTitle" style="font-size: 1.1rem; color: #1e293b; font-weight: 600; margin-top: 4px;"></div>
@@ -1915,6 +1920,52 @@
       document.getElementById('productSelection').classList.add('hidden');
       document.getElementById('questionView').classList.remove('hidden');
       
+      buildCategoryNavigation();
+      renderQuestion();
+    }
+    
+    function buildCategoryNavigation() {
+      var categories = [];
+      var categoryFirstQuestion = {};
+      
+      // Find unique categories and their first question index
+      for (var i = 0; i < state.filteredQuestions.length; i++) {
+        var category = state.filteredQuestions[i].category;
+        if (categories.indexOf(category) === -1) {
+          categories.push(category);
+          categoryFirstQuestion[category] = i;
+        }
+      }
+      
+      var buttonContainer = document.getElementById('categoryButtons');
+      buttonContainer.innerHTML = '';
+      
+      for (var i = 0; i < categories.length; i++) {
+        var category = categories[i];
+        var btn = document.createElement('button');
+        btn.textContent = category;
+        btn.style.cssText = 'padding: 8px 16px; background: white; border: 2px solid ' + products[state.currentProduct].color + '; color: ' + products[state.currentProduct].color + '; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;';
+        btn.setAttribute('data-category-index', categoryFirstQuestion[category]);
+        
+        btn.onmouseover = function() {
+          this.style.background = products[state.currentProduct].color;
+          this.style.color = 'white';
+        };
+        btn.onmouseout = function() {
+          this.style.background = 'white';
+          this.style.color = products[state.currentProduct].color;
+        };
+        btn.onclick = function() {
+          var targetIndex = parseInt(this.getAttribute('data-category-index'));
+          jumpToQuestion(targetIndex);
+        };
+        
+        buttonContainer.appendChild(btn);
+      }
+    }
+    
+    function jumpToQuestion(index) {
+      state.currentStep = index;
       renderQuestion();
     }
     
@@ -2038,17 +2089,27 @@
     }
     
     function updateSubmitButton() {
-      var allAnswered = true;
+      var answeredCount = 0;
       for (var i = 0; i < state.filteredQuestions.length; i++) {
-        if (!state.answers[state.filteredQuestions[i].id]) {
-          allAnswered = false;
-          break;
+        if (state.answers[state.filteredQuestions[i].id]) {
+          answeredCount++;
         }
       }
       
       var submitBtn = document.getElementById('submitAllBtn');
-      submitBtn.disabled = !allAnswered;
-      submitBtn.style.background = allAnswered ? products[state.currentProduct].color : '#cbd5e1';
+      // Allow submission with any number of answers
+      submitBtn.disabled = answeredCount === 0;
+      submitBtn.style.background = answeredCount > 0 ? products[state.currentProduct].color : '#cbd5e1';
+      
+      // Update button text to show progress
+      var totalQuestions = state.filteredQuestions.length;
+      if (answeredCount === totalQuestions) {
+        submitBtn.textContent = 'View Results →';
+      } else if (answeredCount > 0) {
+        submitBtn.textContent = 'View Partial Results (' + answeredCount + '/' + totalQuestions + ' answered) →';
+      } else {
+        submitBtn.textContent = 'Answer at least one question to view results';
+      }
     }
 
     function renderQuestion() {
@@ -2059,6 +2120,24 @@
       document.getElementById('productName').textContent = products[state.currentProduct].name;
       document.getElementById('progressFill').style.width = progress + '%';
       document.getElementById('progressFill').style.background = products[state.currentProduct].color;
+      
+      // Highlight current category button
+      var categoryButtons = document.getElementById('categoryButtons').children;
+      for (var i = 0; i < categoryButtons.length; i++) {
+        var btn = categoryButtons[i];
+        var btnIndex = parseInt(btn.getAttribute('data-category-index'));
+        var nextCategoryIndex = i < categoryButtons.length - 1 ? parseInt(categoryButtons[i + 1].getAttribute('data-category-index')) : state.filteredQuestions.length;
+        
+        if (state.currentStep >= btnIndex && state.currentStep < nextCategoryIndex) {
+          btn.style.background = products[state.currentProduct].color;
+          btn.style.color = 'white';
+          btn.style.fontWeight = '700';
+        } else {
+          btn.style.background = 'white';
+          btn.style.color = products[state.currentProduct].color;
+          btn.style.fontWeight = '600';
+        }
+      }
       
       // Show category header if category changed
       var previousCategory = state.currentStep > 0 ? state.filteredQuestions[state.currentStep - 1].category : null;
@@ -2118,8 +2197,9 @@
       var hasAnswer = !!state.answers[question.id];
       
       document.getElementById('prevBtn').disabled = state.currentStep === 0;
-      document.getElementById('nextBtn').disabled = !hasAnswer;
-      document.getElementById('nextBtn').style.background = products[state.currentProduct].color;
+      // Allow next/results button even if not answered
+      document.getElementById('nextBtn').disabled = false;
+      document.getElementById('nextBtn').style.background = hasAnswer ? products[state.currentProduct].color : '#94a3b8';
       
       var isLastQuestion = state.currentStep === state.filteredQuestions.length - 1;
       document.getElementById('nextBtn').innerHTML = isLastQuestion ? 'View Results →' : 'Next →';
@@ -2371,6 +2451,15 @@
       var today = new Date();
       doc.setFontSize(10);
       doc.text('Generated: ' + today.toLocaleDateString(), margin, yPos);
+      yPos += 8;
+      
+      // Completion status
+      var answeredCount = Object.keys(state.answers).length;
+      var totalQuestions = state.filteredQuestions.length;
+      var completionRate = Math.round((answeredCount / totalQuestions) * 100);
+      
+      doc.setFont(undefined, 'bold');
+      doc.text('Completion: ' + completionRate + '% (' + answeredCount + ' of ' + totalQuestions + ' questions)', margin, yPos);
       yPos += 15;
       
       // Category Scores Section
@@ -2465,8 +2554,40 @@
         }
       }
       
+      // Add unanswered questions section if incomplete
+      var unansweredCount = totalQuestions - answeredCount;
+      if (unansweredCount > 0) {
+        doc.addPage();
+        yPos = margin;
+        
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Unanswered Questions (' + unansweredCount + ' remaining)', margin, yPos);
+        yPos += 12;
+        
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text('These questions can be addressed in future discovery conversations:', margin, yPos);
+        yPos += 10;
+        
+        for (var i = 0; i < state.filteredQuestions.length; i++) {
+          var q = state.filteredQuestions[i];
+          if (!state.answers[q.id]) {
+            if (yPos > pageHeight - 30) {
+              doc.addPage();
+              yPos = margin;
+            }
+            
+            var questionLine = doc.splitTextToSize('• ' + q.category + ': ' + q.question, pageWidth - (margin * 2 + 5));
+            doc.text(questionLine, margin + 5, yPos);
+            yPos += questionLine.length * lineHeight + 2;
+          }
+        }
+      }
+      
       // Save the PDF
-      var filename = 'Discovery-Report-' + products[state.currentProduct].name.replace(/\s+/g, '-') + '-' + today.toISOString().split('T')[0] + '.pdf';
+      var filename = 'Discovery-Report-' + products[state.currentProduct].name.replace(/\s+/g, '-') + '-' + completionRate + 'pct-' + today.toISOString().split('T')[0] + '.pdf';
       doc.save(filename);
     }
 
@@ -2475,6 +2596,20 @@
       document.getElementById('resultsView').classList.remove('hidden');
       
       document.getElementById('resultsProduct').textContent = products[state.currentProduct].name;
+      
+      // Show completion status
+      var answeredCount = Object.keys(state.answers).length;
+      var totalQuestions = state.filteredQuestions.length;
+      var completionRate = Math.round((answeredCount / totalQuestions) * 100);
+      
+      if (completionRate < 100) {
+        var noticeDiv = document.createElement('div');
+        noticeDiv.style.cssText = 'background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 15px; margin-bottom: 20px;';
+        noticeDiv.innerHTML = '<div style="display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5rem;">⚠️</span><div><strong>Partial Discovery Results</strong><br><span style="color: #92400e; font-size: 0.9rem;">' + answeredCount + ' of ' + totalQuestions + ' questions answered (' + completionRate + '% complete). Scores are calculated based on answered questions only. Continue discovery in future conversations to refine results.</span></div></div>';
+        
+        var resultsView = document.getElementById('resultsView');
+        resultsView.insertBefore(noticeDiv, resultsView.children[1]);
+      }
       
       var resetBtn = document.getElementById('resetBtn');
       resetBtn.onclick = resetTool;
