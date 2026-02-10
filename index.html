@@ -524,6 +524,7 @@
             <p id="resultsProduct"></p>
           </div>
           <div style="display: flex; gap: 10px;">
+            <button class="btn-reset" id="generateSummaryBtn" style="background: #8b5cf6;">📊 Generate Executive Summary</button>
             <button class="btn-reset" id="downloadPdfBtn" style="background: #3b82f6;">Download PDF</button>
             <button class="btn-reset" id="resetBtn">Start Over</button>
           </div>
@@ -2584,6 +2585,209 @@
       return uniqueRecs;
     }
     
+    function generateExecutiveSummary() {
+      var categoryScores = calculateScores();
+      
+      // Get high and medium impact areas
+      var highImpact = [];
+      var mediumImpact = [];
+      
+      for (var category in categoryScores) {
+        if (categoryScores[category].level === 'High') {
+          highImpact.push({
+            category: category,
+            score: categoryScores[category].score,
+            talking: talkingPoints[category] ? talkingPoints[category]['High'] : ''
+          });
+        } else if (categoryScores[category].level === 'Medium') {
+          mediumImpact.push({
+            category: category,
+            score: categoryScores[category].score,
+            talking: talkingPoints[category] ? talkingPoints[category]['Medium'] : ''
+          });
+        }
+      }
+      
+      // Create modal with executive summary
+      var modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;';
+      
+      var content = document.createElement('div');
+      content.style.cssText = 'background: white; padding: 0; border-radius: 12px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
+      
+      var productColor = products[state.currentProduct].color;
+      
+      var html = '<div style="background: linear-gradient(135deg, ' + productColor + ' 0%, ' + adjustColor(productColor, -20) + ' 100%); padding: 40px; color: white; border-radius: 12px 12px 0 0;">';
+      html += '<h1 style="margin: 0 0 10px 0; font-size: 2rem;">Discovery Summary</h1>';
+      html += '<h2 style="margin: 0; font-size: 1.5rem; opacity: 0.9;">' + products[state.currentProduct].name + '</h2>';
+      html += '</div>';
+      
+      html += '<div style="padding: 40px;">';
+      
+      // Overview section
+      var answeredCount = Object.keys(state.answers).length;
+      var totalQuestions = state.filteredQuestions.length;
+      var completionRate = Math.round((answeredCount / totalQuestions) * 100);
+      
+      html += '<div style="background: #f8fafc; border-left: 4px solid ' + productColor + '; padding: 20px; margin-bottom: 30px; border-radius: 4px;">';
+      html += '<div style="font-weight: 600; color: #1e293b; margin-bottom: 10px; font-size: 1.1rem;">Discovery Overview</div>';
+      html += '<div style="color: #64748b; line-height: 1.6;">Based on our discovery conversation covering ' + answeredCount + ' key questions (' + completionRate + '% of full assessment), we\'ve identified the following priority areas for ' + products[state.currentProduct].name + '.</div>';
+      html += '</div>';
+      
+      // High Impact Areas
+      if (highImpact.length > 0) {
+        html += '<div style="margin-bottom: 30px;">';
+        html += '<h3 style="color: #dc2626; font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5rem;">🔴</span> High Priority Areas</h3>';
+        
+        for (var i = 0; i < highImpact.length; i++) {
+          var item = highImpact[i];
+          html += '<div style="background: #fef2f2; border: 2px solid #fca5a5; padding: 20px; margin-bottom: 15px; border-radius: 8px;">';
+          html += '<div style="font-weight: 600; color: #991b1b; margin-bottom: 8px; font-size: 1.1rem;">' + item.category + '</div>';
+          html += '<div style="color: #7f1d1d; line-height: 1.6; font-size: 0.95rem;">' + extractKeyPoints(item.talking) + '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+      
+      // Medium Impact Areas
+      if (mediumImpact.length > 0) {
+        html += '<div style="margin-bottom: 30px;">';
+        html += '<h3 style="color: #d97706; font-size: 1.3rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5rem;">🟡</span> Medium Priority Areas</h3>';
+        
+        for (var i = 0; i < mediumImpact.length; i++) {
+          var item = mediumImpact[i];
+          html += '<div style="background: #fffbeb; border: 2px solid #fcd34d; padding: 20px; margin-bottom: 15px; border-radius: 8px;">';
+          html += '<div style="font-weight: 600; color: #92400e; margin-bottom: 8px; font-size: 1.1rem;">' + item.category + '</div>';
+          html += '<div style="color: #78350f; line-height: 1.6; font-size: 0.95rem;">' + extractKeyPoints(item.talking) + '</div>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+      
+      // Next Steps
+      html += '<div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #38bdf8; padding: 25px; border-radius: 8px; margin-bottom: 20px;">';
+      html += '<h3 style="color: #0c4a6e; margin: 0 0 15px 0; font-size: 1.2rem;">💡 Recommended Next Steps</h3>';
+      html += '<div style="color: #075985; line-height: 1.8;">';
+      html += '<strong>1. Deep Dive Session:</strong> Schedule a technical workshop to explore implementation requirements<br>';
+      html += '<strong>2. ROI Analysis:</strong> Quantify potential savings and efficiency gains based on these findings<br>';
+      html += '<strong>3. Stakeholder Alignment:</strong> Share this summary with key decision-makers and end users<br>';
+      html += '<strong>4. Proof of Value:</strong> Consider a pilot or demo focused on high-priority pain points';
+      html += '</div>';
+      html += '</div>';
+      
+      html += '<div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">';
+      html += '<button onclick="copyExecutiveSummary()" style="background: ' + productColor + '; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 1rem; margin-right: 10px; font-weight: 600;">📋 Copy to Clipboard</button>';
+      html += '<button onclick="closeExecutiveSummary()" style="background: #64748b; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600;">Close</button>';
+      html += '</div>';
+      
+      html += '</div>';
+      
+      content.innerHTML = html;
+      modal.appendChild(content);
+      document.body.appendChild(modal);
+      
+      window.currentSummaryModal = modal;
+      window.summaryContent = content.innerText;
+    }
+    
+    function extractKeyPoints(text) {
+      // Extract the most important sentence or two from talking points
+      var sentences = text.split('. ');
+      var keyPoints = [];
+      
+      for (var i = 0; i < sentences.length && i < 2; i++) {
+        if (sentences[i].trim()) {
+          keyPoints.push(sentences[i].trim() + (sentences[i].indexOf('.') === -1 ? '.' : ''));
+        }
+      }
+      
+      return keyPoints.join(' ');
+    }
+    
+    function adjustColor(color, amount) {
+      // Simple color adjustment for gradient
+      var num = parseInt(color.replace("#",""), 16);
+      var r = (num >> 16) + amount;
+      var g = ((num >> 8) & 0x00FF) + amount;
+      var b = (num & 0x0000FF) + amount;
+      
+      r = Math.max(0, Math.min(255, r));
+      g = Math.max(0, Math.min(255, g));
+      b = Math.max(0, Math.min(255, b));
+      
+      return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+    
+    function copyExecutiveSummary() {
+      var tempDiv = document.createElement('div');
+      tempDiv.innerHTML = window.currentSummaryModal.querySelector('div > div:nth-child(2)').innerHTML;
+      
+      // Create a clean text version
+      var text = 'DISCOVERY SUMMARY\\n';
+      text += products[state.currentProduct].name + '\\n';
+      text += '='.repeat(60) + '\\n\\n';
+      
+      var categoryScores = calculateScores();
+      var answeredCount = Object.keys(state.answers).length;
+      var totalQuestions = state.filteredQuestions.length;
+      var completionRate = Math.round((answeredCount / totalQuestions) * 100);
+      
+      text += 'Discovery Overview:\\n';
+      text += 'Based on our discovery conversation covering ' + answeredCount + ' key questions (' + completionRate + '% of full assessment), we have identified the following priority areas.\\n\\n';
+      
+      var highImpact = [];
+      var mediumImpact = [];
+      
+      for (var category in categoryScores) {
+        if (categoryScores[category].level === 'High') {
+          highImpact.push(category);
+        } else if (categoryScores[category].level === 'Medium') {
+          mediumImpact.push(category);
+        }
+      }
+      
+      if (highImpact.length > 0) {
+        text += 'HIGH PRIORITY AREAS:\\n';
+        for (var i = 0; i < highImpact.length; i++) {
+          text += '\\n• ' + highImpact[i] + '\\n';
+          if (talkingPoints[highImpact[i]]) {
+            text += '  ' + extractKeyPoints(talkingPoints[highImpact[i]]['High']) + '\\n';
+          }
+        }
+        text += '\\n';
+      }
+      
+      if (mediumImpact.length > 0) {
+        text += 'MEDIUM PRIORITY AREAS:\\n';
+        for (var i = 0; i < mediumImpact.length; i++) {
+          text += '\\n• ' + mediumImpact[i] + '\\n';
+          if (talkingPoints[mediumImpact[i]]) {
+            text += '  ' + extractKeyPoints(talkingPoints[mediumImpact[i]]['Medium']) + '\\n';
+          }
+        }
+        text += '\\n';
+      }
+      
+      text += 'RECOMMENDED NEXT STEPS:\\n';
+      text += '1. Deep Dive Session - Schedule technical workshop\\n';
+      text += '2. ROI Analysis - Quantify savings and efficiency gains\\n';
+      text += '3. Stakeholder Alignment - Share findings with decision-makers\\n';
+      text += '4. Proof of Value - Consider pilot focused on high-priority areas\\n';
+      
+      navigator.clipboard.writeText(text).then(function() {
+        alert('Executive summary copied to clipboard! Ready to paste into slides or email.');
+      }).catch(function() {
+        alert('Unable to copy. Please manually select and copy the content.');
+      });
+    }
+    
+    function closeExecutiveSummary() {
+      if (window.currentSummaryModal) {
+        document.body.removeChild(window.currentSummaryModal);
+        window.currentSummaryModal = null;
+      }
+    }
+    
     function generatePDF() {
       var jsPDF = window.jspdf.jsPDF;
       var doc = new jsPDF();
@@ -2776,6 +2980,9 @@
       
       var pdfBtn = document.getElementById('downloadPdfBtn');
       pdfBtn.onclick = generatePDF;
+      
+      var summaryBtn = document.getElementById('generateSummaryBtn');
+      summaryBtn.onclick = generateExecutiveSummary;
       
       var categoryScores = calculateScores();
       
