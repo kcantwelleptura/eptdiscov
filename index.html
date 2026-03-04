@@ -2982,6 +2982,13 @@
       var optionsContainer = document.getElementById('optionsContainer');
       optionsContainer.innerHTML = '';
       
+      // Safety check for options
+      if (!question.options || question.options.length === 0) {
+        console.error('No options for question:', question.id, question);
+        optionsContainer.innerHTML = '<div style="color: red; padding: 20px;">Error: No options available for this question.</div>';
+        return;
+      }
+      
       for (var i = 0; i < question.options.length; i++) {
         var option = question.options[i];
         var button = document.createElement('button');
