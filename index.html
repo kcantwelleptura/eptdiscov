@@ -438,6 +438,27 @@
       <div class="header">
         <h1>Value-Driven Discovery</h1>
         <p>Select a product to begin guided discovery</p>
+        <div style="margin-top: 20px; margin-bottom: 20px;">
+          <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; display: inline-block;">
+            <div style="font-weight: 600; color: #1e293b; margin-bottom: 12px; font-size: 1.1rem;">Select Discovery Mode:</div>
+            <div style="display: flex; gap: 15px;">
+              <label style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; background: white; border: 2px solid #3b82f6; border-radius: 8px; font-weight: 600; color: #3b82f6;">
+                <input type="radio" name="discoveryMode" value="bdr" checked style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+                <div>
+                  <div style="font-size: 1rem;">🎯 BDR Quick Qual</div>
+                  <div style="font-size: 0.75rem; font-weight: normal; color: #64748b; margin-top: 2px;">5-8 questions • 2-3 min • BANT qualification</div>
+                </div>
+              </label>
+              <label style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; color: #64748b;">
+                <input type="radio" name="discoveryMode" value="full" style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+                <div>
+                  <div style="font-size: 1rem; font-weight: 600;">📋 Full Discovery</div>
+                  <div style="font-size: 0.75rem; font-weight: normal; color: #64748b; margin-top: 2px;">15-30 questions • Deep pain analysis</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
         <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           <button onclick="showSessionManager()" style="background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#64748b'">📂 Load Saved Session</button>
         </div>
@@ -566,7 +587,8 @@
       currentStep: 0,
       answers: {},
       filteredQuestions: [],
-      viewMode: 'step'
+      viewMode: 'step',
+      discoveryMode: 'bdr' // 'bdr' or 'full'
     };
     
     // ─── Hybrid Storage System (Persistent + localStorage fallback) ──────────
@@ -845,6 +867,103 @@
     };
 
     var questions = [
+      // ===== BDR QUALIFIER QUESTIONS - ALL PRODUCTS =====
+      // These questions are shared across all products for BANT qualification
+      
+      {
+        id: 'bdr_authority',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Before we dive in, can you tell me about your role in evaluating solutions like this?',
+        followUp: 'I want to make sure we\'re having the right conversation with the right people.',
+        options: ['I\'m the decision-maker', 'I\'m part of the evaluation team', 'Just doing initial research'],
+        scoreMap: { 'I\'m the decision-maker': 1, 'I\'m part of the evaluation team': 2, 'Just doing initial research': 3 },
+        nextQuestion: 'bdr_budget'
+      },
+      {
+        id: 'bdr_budget',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Have you had conversations internally about budget for this type of project?',
+        followUp: 'No worries if it\'s still early—just trying to understand where you are in the process.',
+        options: ['Yes, we have budget set aside', 'We\'re working on getting approval', 'Not yet, still exploring options'],
+        scoreMap: { 'Yes, we have budget set aside': 1, 'We\'re working on getting approval': 2, 'Not yet, still exploring options': 3 },
+        nextQuestion: 'bdr_need'
+      },
+      {
+        id: 'bdr_need',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What made you start looking at visitor management solutions right now?',
+        followUp: 'Curious what sparked this—helps me understand what you\'re trying to solve.',
+        options: ['We have a specific problem to fix', 'Part of a bigger initiative we\'re rolling out', 'Just seeing what\'s out there'],
+        scoreMap: { 'We have a specific problem to fix': 1, 'Part of a bigger initiative we\'re rolling out': 2, 'Just seeing what\'s out there': 3 },
+        allowText: true,
+        textPrompt: 'Tell me more about what sparked this (optional):',
+        nextQuestion: 'bdr_timeline'
+      },
+      {
+        id: 'bdr_timeline',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'If you found the right solution, what kind of timeline are you thinking?',
+        followUp: 'Just ballpark—are we talking weeks, months, or just good to keep in touch?',
+        options: ['We need something soon (next 3 months)', 'Aiming for mid-year (3-6 months)', 'No rush, planning ahead'],
+        scoreMap: { 'We need something soon (next 3 months)': 1, 'Aiming for mid-year (3-6 months)': 2, 'No rush, planning ahead': 3 },
+        nextQuestion: 'bdr_pain_level'
+      },
+      {
+        id: 'bdr_pain_level',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'On a scale of "nice to have" to "keeping me up at night," where does this fall?',
+        followUp: 'Helps me understand if this is urgent or more of a wish list item.',
+        options: ['This is critical—we need to fix it', 'Important, but not an emergency', 'Would be nice to improve'],
+        scoreMap: { 'This is critical—we need to fix it': 1, 'Important, but not an emergency': 2, 'Would be nice to improve': 3 },
+        nextQuestion: 'bdr_current_solution'
+      },
+      {
+        id: 'bdr_current_solution',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What are you doing for visitor management today?',
+        followUp: 'Pen and paper? Spreadsheets? An actual system? I\'ve seen it all!',
+        options: ['Totally manual—spreadsheets or paper', 'We have a system but it\'s not great', 'Combination of things'],
+        scoreMap: { 'Totally manual—spreadsheets or paper': 1, 'We have a system but it\'s not great': 2, 'Combination of things': 2 },
+        nextQuestion: 'bdr_scope'
+      },
+      {
+        id: 'bdr_scope',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Give me a sense of scale—how many locations and visitors are we talking about?',
+        followUp: 'Rough estimate is fine, just helps me understand the size.',
+        options: ['1-2 offices, pretty manageable volume', '3-10 locations, getting complicated', 'Lots of locations or high traffic'],
+        scoreMap: { '1-2 offices, pretty manageable volume': 1, '3-10 locations, getting complicated': 2, 'Lots of locations or high traffic': 3 },
+        nextQuestion: function(answer, answers) {
+          // BDR qual complete - ask if they want full discovery
+          return 'bdr_next_steps';
+        }
+      },
+      {
+        id: 'bdr_next_steps',
+        product: 'visitor',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Based on what you\'ve shared, I think there\'s definitely something here worth exploring. The next step would be connecting you with one of our Account Executives who can do a proper discovery call—they\'ll dig into your specific pain points, show you exactly how we\'d solve them, and put together a custom ROI analysis. Does that sound valuable?',
+        followUp: 'The call is usually 30-45 minutes and you\'ll walk away with a clear picture of what this could look like for your organization.',
+        options: ['Yes, let\'s schedule that', 'Maybe, but I need to loop in others first', 'Not ready yet, just gathering info'],
+        scoreMap: { 'Yes, let\'s schedule that': 1, 'Maybe, but I need to loop in others first': 2, 'Not ready yet, just gathering info': 3 },
+        nextQuestion: null // End of BDR flow
+      },
+      
       // ===== VISITOR MANAGEMENT - CONVERSATIONAL FLOW =====
       
       // OPENING QUESTION - Broad pain identifier
@@ -1222,6 +1341,99 @@
         scoreMap: { 'complex customization': 3, 'some customization': 2, 'standard workflows': 1 },
         nextQuestion: null // End
       },
+      
+      // ===== BDR QUALIFIER - WORKPLACE =====
+      {
+        id: 'bdr_authority',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Before we dive in, can you tell me about your role in evaluating solutions like this?',
+        followUp: 'I want to make sure we\'re having the right conversation with the right people.',
+        options: ['I\'m the decision-maker', 'I\'m part of the evaluation team', 'Just doing initial research'],
+        scoreMap: { 'I\'m the decision-maker': 1, 'I\'m part of the evaluation team': 2, 'Just doing initial research': 3 },
+        nextQuestion: 'bdr_budget'
+      },
+      {
+        id: 'bdr_budget',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Have you had conversations internally about budget for this type of project?',
+        followUp: 'No worries if it\'s still early—just trying to understand where you are in the process.',
+        options: ['Yes, we have budget set aside', 'We\'re working on getting approval', 'Not yet, still exploring options'],
+        scoreMap: { 'Yes, we have budget set aside': 1, 'We\'re working on getting approval': 2, 'Not yet, still exploring options': 3 },
+        nextQuestion: 'bdr_need'
+      },
+      {
+        id: 'bdr_need',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What made you start looking at workplace management solutions right now?',
+        followUp: 'Curious what sparked this—helps me understand what you\'re trying to solve.',
+        options: ['We have a specific problem to fix', 'Part of a bigger initiative we\'re rolling out', 'Just seeing what\'s out there'],
+        scoreMap: { 'We have a specific problem to fix': 1, 'Part of a bigger initiative we\'re rolling out': 2, 'Just seeing what\'s out there': 3 },
+        allowText: true,
+        textPrompt: 'Tell me more about what sparked this (optional):',
+        nextQuestion: 'bdr_timeline'
+      },
+      {
+        id: 'bdr_timeline',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'If you found the right solution, what kind of timeline are you thinking?',
+        followUp: 'Just ballpark—are we talking weeks, months, or just good to keep in touch?',
+        options: ['We need something soon (next 3 months)', 'Aiming for mid-year (3-6 months)', 'No rush, planning ahead'],
+        scoreMap: { 'We need something soon (next 3 months)': 1, 'Aiming for mid-year (3-6 months)': 2, 'No rush, planning ahead': 3 },
+        nextQuestion: 'bdr_pain_level'
+      },
+      {
+        id: 'bdr_pain_level',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'On a scale of "nice to have" to "keeping me up at night," where does this fall?',
+        followUp: 'Helps me understand if this is urgent or more of a wish list item.',
+        options: ['This is critical—we need to fix it', 'Important, but not an emergency', 'Would be nice to improve'],
+        scoreMap: { 'This is critical—we need to fix it': 1, 'Important, but not an emergency': 2, 'Would be nice to improve': 3 },
+        nextQuestion: 'bdr_current_solution'
+      },
+      {
+        id: 'bdr_current_solution',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What are you doing for space management today?',
+        followUp: 'CAD drawings? Spreadsheets? Hoping for the best? All valid answers!',
+        options: ['Totally manual—spreadsheets and CAD', 'We have a system but it\'s clunky', 'Combination of things'],
+        scoreMap: { 'Totally manual—spreadsheets and CAD': 1, 'We have a system but it\'s clunky': 2, 'Combination of things': 2 },
+        nextQuestion: 'bdr_scope'
+      },
+      {
+        id: 'bdr_scope',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Give me a sense of scale—how many locations and square feet are we talking about?',
+        followUp: 'Rough numbers are fine, just helps me understand the size.',
+        options: ['1-2 offices, under 100k sqft', 'Several locations, getting complex', 'Lots of real estate to manage'],
+        scoreMap: { '1-2 offices, under 100k sqft': 1, 'Several locations, getting complex': 2, 'Lots of real estate to manage': 3 },
+        nextQuestion: 'bdr_next_steps'
+      },
+      {
+        id: 'bdr_next_steps',
+        product: 'workplace',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Based on what you\'ve shared, I think there\'s definitely something here worth exploring. The next step would be connecting you with one of our Account Executives who can do a proper discovery call—they\'ll dig into your specific pain points, show you exactly how we\'d solve them, and put together a custom ROI analysis. Does that sound valuable?',
+        followUp: 'The call is usually 30-45 minutes and you\'ll walk away with a clear picture of what this could look like for your organization.',
+        options: ['Yes, let\'s schedule that', 'Maybe, but I need to loop in others first', 'Not ready yet, just gathering info'],
+        scoreMap: { 'Yes, let\'s schedule that': 1, 'Maybe, but I need to loop in others first': 2, 'Not ready yet, just gathering info': 3 },
+        nextQuestion: null
+      },
+      
       // ===== WORKPLACE MANAGEMENT - LINEAR (to be converted) =====
       {
         id: 'collaboration_frequency',
@@ -1646,6 +1858,99 @@
         options: ['complex migration', 'simple migration', 'greenfield'],
         scoreMap: { 'complex migration': 3, 'simple migration': 2, 'greenfield': 1 }
       },
+      
+      // ===== BDR QUALIFIER - ASSET MANAGEMENT =====
+      {
+        id: 'bdr_authority',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Before we dive in, can you tell me about your role in evaluating solutions like this?',
+        followUp: 'I want to make sure we\'re having the right conversation with the right people.',
+        options: ['I\'m the decision-maker', 'I\'m part of the evaluation team', 'Just doing initial research'],
+        scoreMap: { 'I\'m the decision-maker': 1, 'I\'m part of the evaluation team': 2, 'Just doing initial research': 3 },
+        nextQuestion: 'bdr_budget'
+      },
+      {
+        id: 'bdr_budget',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Have you had conversations internally about budget for this type of project?',
+        followUp: 'No worries if it\'s still early—just trying to understand where you are in the process.',
+        options: ['Yes, we have budget set aside', 'We\'re working on getting approval', 'Not yet, still exploring options'],
+        scoreMap: { 'Yes, we have budget set aside': 1, 'We\'re working on getting approval': 2, 'Not yet, still exploring options': 3 },
+        nextQuestion: 'bdr_need'
+      },
+      {
+        id: 'bdr_need',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What made you start looking at asset management solutions right now?',
+        followUp: 'Curious what sparked this—helps me understand what you\'re trying to solve.',
+        options: ['We have a specific problem to fix', 'Part of a bigger initiative we\'re rolling out', 'Just seeing what\'s out there'],
+        scoreMap: { 'We have a specific problem to fix': 1, 'Part of a bigger initiative we\'re rolling out': 2, 'Just seeing what\'s out there': 3 },
+        allowText: true,
+        textPrompt: 'Tell me more about what sparked this (optional):',
+        nextQuestion: 'bdr_timeline'
+      },
+      {
+        id: 'bdr_timeline',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'If you found the right solution, what kind of timeline are you thinking?',
+        followUp: 'Just ballpark—are we talking weeks, months, or just good to keep in touch?',
+        options: ['We need something soon (next 3 months)', 'Aiming for mid-year (3-6 months)', 'No rush, planning ahead'],
+        scoreMap: { 'We need something soon (next 3 months)': 1, 'Aiming for mid-year (3-6 months)': 2, 'No rush, planning ahead': 3 },
+        nextQuestion: 'bdr_pain_level'
+      },
+      {
+        id: 'bdr_pain_level',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'On a scale of "nice to have" to "keeping me up at night," where does this fall?',
+        followUp: 'Helps me understand if this is urgent or more of a wish list item.',
+        options: ['This is critical—we need to fix it', 'Important, but not an emergency', 'Would be nice to improve'],
+        scoreMap: { 'This is critical—we need to fix it': 1, 'Important, but not an emergency': 2, 'Would be nice to improve': 3 },
+        nextQuestion: 'bdr_current_solution'
+      },
+      {
+        id: 'bdr_current_solution',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What are you doing for maintenance tracking today?',
+        followUp: 'Paper work orders? Spreadsheets? Something fancier? I\'ve seen it all!',
+        options: ['Totally manual—paper and spreadsheets', 'We have a CMMS but it\'s painful', 'Combination of things'],
+        scoreMap: { 'Totally manual—paper and spreadsheets': 1, 'We have a CMMS but it\'s painful': 2, 'Combination of things': 2 },
+        nextQuestion: 'bdr_scope'
+      },
+      {
+        id: 'bdr_scope',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Give me a sense of scale—how many assets and work orders are we talking about?',
+        followUp: 'Ballpark numbers help me understand if we\'re a good fit.',
+        options: ['Small operation, pretty manageable', 'Medium size, getting complicated', 'Large operation, lots to track'],
+        scoreMap: { 'Small operation, pretty manageable': 1, 'Medium size, getting complicated': 2, 'Large operation, lots to track': 3 },
+        nextQuestion: 'bdr_next_steps'
+      },
+      {
+        id: 'bdr_next_steps',
+        product: 'asset',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Based on what you\'ve shared, I think there\'s definitely something here worth exploring. The next step would be connecting you with one of our Account Executives who can do a proper discovery call—they\'ll dig into your specific pain points, show you exactly how we\'d solve them, and put together a custom ROI analysis. Does that sound valuable?',
+        followUp: 'The call is usually 30-45 minutes and you\'ll walk away with a clear picture of what this could look like for your organization.',
+        options: ['Yes, let\'s schedule that', 'Maybe, but I need to loop in others first', 'Not ready yet, just gathering info'],
+        scoreMap: { 'Yes, let\'s schedule that': 1, 'Maybe, but I need to loop in others first': 2, 'Not ready yet, just gathering info': 3 },
+        nextQuestion: null
+      },
+      
       {
         id: 'equipment_downtime',
         product: 'asset',
@@ -1979,6 +2284,99 @@
         options: ['5+ warehouses', '2-4 warehouses', '0-1 warehouse'],
         scoreMap: { '5+ warehouses': 3, '2-4 warehouses': 2, '0-1 warehouse': 1 }
       },
+      
+      // ===== BDR QUALIFIER - EMPLOYEE ENGAGEMENT =====
+      {
+        id: 'bdr_authority',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Before we dive in, can you tell me about your role in evaluating solutions like this?',
+        followUp: 'I want to make sure we\'re having the right conversation with the right people.',
+        options: ['I\'m the decision-maker', 'I\'m part of the evaluation team', 'Just doing initial research'],
+        scoreMap: { 'I\'m the decision-maker': 1, 'I\'m part of the evaluation team': 2, 'Just doing initial research': 3 },
+        nextQuestion: 'bdr_budget'
+      },
+      {
+        id: 'bdr_budget',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Have you had conversations internally about budget for this type of project?',
+        followUp: 'No worries if it\'s still early—just trying to understand where you are in the process.',
+        options: ['Yes, we have budget set aside', 'We\'re working on getting approval', 'Not yet, still exploring options'],
+        scoreMap: { 'Yes, we have budget set aside': 1, 'We\'re working on getting approval': 2, 'Not yet, still exploring options': 3 },
+        nextQuestion: 'bdr_need'
+      },
+      {
+        id: 'bdr_need',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What made you start looking at desk booking and employee engagement solutions right now?',
+        followUp: 'Curious what sparked this—helps me understand what you\'re trying to solve.',
+        options: ['We have a specific problem to fix', 'Part of a bigger initiative we\'re rolling out', 'Just seeing what\'s out there'],
+        scoreMap: { 'We have a specific problem to fix': 1, 'Part of a bigger initiative we\'re rolling out': 2, 'Just seeing what\'s out there': 3 },
+        allowText: true,
+        textPrompt: 'Tell me more about what sparked this (optional):',
+        nextQuestion: 'bdr_timeline'
+      },
+      {
+        id: 'bdr_timeline',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'If you found the right solution, what kind of timeline are you thinking?',
+        followUp: 'Just ballpark—are we talking weeks, months, or just good to keep in touch?',
+        options: ['We need something soon (next 3 months)', 'Aiming for mid-year (3-6 months)', 'No rush, planning ahead'],
+        scoreMap: { 'We need something soon (next 3 months)': 1, 'Aiming for mid-year (3-6 months)': 2, 'No rush, planning ahead': 3 },
+        nextQuestion: 'bdr_pain_level'
+      },
+      {
+        id: 'bdr_pain_level',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'On a scale of "nice to have" to "keeping me up at night," where does this fall?',
+        followUp: 'Helps me understand if this is urgent or more of a wish list item.',
+        options: ['This is critical—we need to fix it', 'Important, but not an emergency', 'Would be nice to improve'],
+        scoreMap: { 'This is critical—we need to fix it': 1, 'Important, but not an emergency': 2, 'Would be nice to improve': 3 },
+        nextQuestion: 'bdr_current_solution'
+      },
+      {
+        id: 'bdr_current_solution',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'What are you doing for desk booking and employee coordination today?',
+        followUp: 'Email chaos? Shared calendar? Post-it notes? Be honest—I won\'t judge!',
+        options: ['Totally manual—email or spreadsheets', 'We have something but nobody likes it', 'Combination of things'],
+        scoreMap: { 'Totally manual—email or spreadsheets': 1, 'We have something but nobody likes it': 2, 'Combination of things': 2 },
+        nextQuestion: 'bdr_scope'
+      },
+      {
+        id: 'bdr_scope',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Give me a sense of scale—how many employees and bookable spaces are we talking about?',
+        followUp: 'Just ballpark numbers so I know what we\'re working with.',
+        options: ['Smaller team, manageable', 'Mid-sized, getting complex', 'Large workforce, lots to coordinate'],
+        scoreMap: { 'Smaller team, manageable': 1, 'Mid-sized, getting complex': 2, 'Large workforce, lots to coordinate': 3 },
+        nextQuestion: 'bdr_next_steps'
+      },
+      {
+        id: 'bdr_next_steps',
+        product: 'engage',
+        category: 'BDR Qualification',
+        isBDR: true,
+        question: 'Based on what you\'ve shared, I think there\'s definitely something here worth exploring. The next step would be connecting you with one of our Account Executives who can do a proper discovery call—they\'ll dig into your specific pain points, show you exactly how we\'d solve them, and put together a custom ROI analysis. Does that sound valuable?',
+        followUp: 'The call is usually 30-45 minutes and you\'ll walk away with a clear picture of what this could look like for your organization.',
+        options: ['Yes, let\'s schedule that', 'Maybe, but I need to loop in others first', 'Not ready yet, just gathering info'],
+        scoreMap: { 'Yes, let\'s schedule that': 1, 'Maybe, but I need to loop in others first': 2, 'Not ready yet, just gathering info': 3 },
+        nextQuestion: null
+      },
+      
       {
         id: 'sensor_usage',
         product: 'engage',
@@ -2296,10 +2694,26 @@
       var preservedStep = state.currentStep;
       
       state.currentProduct = product;
+      
+      // Get selected discovery mode
+      var modeRadio = document.querySelector('input[name="discoveryMode"]:checked');
+      var mode = modeRadio ? modeRadio.value : 'bdr'; // Default to BDR mode
+      state.discoveryMode = mode;
+      
+      // Filter questions based on product and mode
       state.filteredQuestions = [];
       for (var i = 0; i < questions.length; i++) {
-        if (questions[i].product === product) {
-          state.filteredQuestions.push(questions[i]);
+        var q = questions[i];
+        if (q.product === product) {
+          if (mode === 'bdr') {
+            // BDR mode: only show BDR qualification questions
+            if (q.isBDR === true) {
+              state.filteredQuestions.push(q);
+            }
+          } else {
+            // Full mode: show BDR questions + all discovery questions
+            state.filteredQuestions.push(q);
+          }
         }
       }
       
@@ -2586,6 +3000,38 @@
         optionsContainer.appendChild(button);
       }
       
+      // Add optional text input for questions that allow it
+      if (question.allowText && state.answers[question.id]) {
+        var textContainer = document.createElement('div');
+        textContainer.style.cssText = 'margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 2px solid ' + products[state.currentProduct].color;
+        
+        var textLabel = document.createElement('div');
+        textLabel.style.cssText = 'font-weight: 600; margin-bottom: 10px; color: #1e293b;';
+        textLabel.textContent = question.textPrompt || 'Tell me more (optional):';
+        textContainer.appendChild(textLabel);
+        
+        var textarea = document.createElement('textarea');
+        textarea.id = 'questionTextInput';
+        textarea.style.cssText = 'width: 100%; min-height: 80px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical;';
+        textarea.placeholder = 'Add any details that help us understand your situation...';
+        textarea.value = state.answers[question.id + '_text'] || '';
+        
+        textarea.addEventListener('blur', function() {
+          state.answers[question.id + '_text'] = this.value;
+          if (window.currentSessionKey) {
+            autoSave();
+          }
+        });
+        
+        textContainer.appendChild(textarea);
+        optionsContainer.appendChild(textContainer);
+        
+        // Focus the textarea after a brief delay
+        setTimeout(function() {
+          textarea.focus();
+        }, 100);
+      }
+      
       updateNavigation();
     }
 
@@ -2684,6 +3130,84 @@
       }
       
       return averages;
+    }
+    
+    // Helper function to start a new product discovery
+    function startNewProductDiscovery(productId) {
+      // Reset state completely
+      state.answers = {};
+      state.currentStep = 0;
+      window.currentSessionKey = null;
+      window.currentCustomerName = null;
+      
+      // Hide results view
+      document.getElementById('resultsView').classList.add('hidden');
+      
+      // Select and start the new product
+      selectProduct(productId);
+    }
+    
+    function calculateBDRScore() {
+      // BANT scoring: Budget, Authority, Need, Timeline
+      var bdrAnswers = {
+        authority: state.answers['bdr_authority'],
+        budget: state.answers['bdr_budget'],
+        need: state.answers['bdr_need'],
+        timeline: state.answers['bdr_timeline'],
+        pain: state.answers['bdr_pain_level']
+      };
+      
+      // Check if we have BDR answers
+      if (!bdrAnswers.authority) return null;
+      
+      var score = 0;
+      var maxScore = 100;
+      
+      // Authority (25 points)
+      if (bdrAnswers.authority === 'I\'m the decision-maker') score += 25;
+      else if (bdrAnswers.authority === 'I\'m part of the evaluation team') score += 15;
+      else score += 5;
+      
+      // Budget (25 points)
+      if (bdrAnswers.budget === 'Yes, we have budget set aside') score += 25;
+      else if (bdrAnswers.budget === 'We\'re working on getting approval') score += 15;
+      else score += 5;
+      
+      // Need (20 points)
+      if (bdrAnswers.need === 'We have a specific problem to fix') score += 20;
+      else if (bdrAnswers.need === 'Part of a bigger initiative we\'re rolling out') score += 12;
+      else score += 5;
+      
+      // Timeline (15 points)
+      if (bdrAnswers.timeline === 'We need something soon (next 3 months)') score += 15;
+      else if (bdrAnswers.timeline === 'Aiming for mid-year (3-6 months)') score += 10;
+      else score += 3;
+      
+      // Pain Level (15 points)
+      if (bdrAnswers.pain === 'This is critical—we need to fix it') score += 15;
+      else if (bdrAnswers.pain === 'Important, but not an emergency') score += 8;
+      else score += 3;
+      
+      // Determine lead temperature
+      var level = 'Cold';
+      if (score >= 70) level = 'Hot';
+      else if (score >= 45) level = 'Warm';
+      
+      // Generate summary
+      var summary = '';
+      var bant = [];
+      if (bdrAnswers.budget === 'Yes, we have budget set aside') bant.push('✓ Budget');
+      if (bdrAnswers.authority === 'I\'m the decision-maker') bant.push('✓ Authority');
+      if (bdrAnswers.need === 'We have a specific problem to fix') bant.push('✓ Need');
+      if (bdrAnswers.timeline === 'We need something soon (next 3 months)' || bdrAnswers.timeline === 'Aiming for mid-year (3-6 months)') bant.push('✓ Timeline');
+      
+      summary = bant.length > 0 ? bant.join('<br>') : 'Qualifying lead';
+      
+      return {
+        score: score,
+        level: level,
+        summary: summary
+      };
     }
     
     function generateRecommendations(categoryScores) {
@@ -3188,7 +3712,20 @@
           doc.setFont(undefined, 'bold');
           doc.setTextColor(60, 130, 246); // Blue color for answer
           doc.text('Answer: ' + answer, margin, yPos);
-          yPos += lineHeight + 5;
+          yPos += lineHeight;
+          
+          // Add text response if available
+          var textAnswer = state.answers[q.id + '_text'];
+          if (textAnswer && textAnswer.trim()) {
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(80);
+            var textLines = doc.splitTextToSize('Additional details: ' + textAnswer, pageWidth - (margin * 2));
+            doc.text(textLines, margin, yPos);
+            yPos += textLines.length * lineHeight;
+          }
+          
+          yPos += 5;
           
           doc.setTextColor(0);
           doc.setFontSize(10);
@@ -3261,7 +3798,53 @@
       var summaryBtn = document.getElementById('generateSummaryBtn');
       summaryBtn.onclick = generateExecutiveSummary;
       
+      // In BDR mode, hide executive summary button and make save more prominent
+      if (state.discoveryMode === 'bdr') {
+        summaryBtn.style.display = 'none';
+        
+        // Add a prominent "Save & Hand Off to AE" button
+        var saveHandoffBtn = document.createElement('button');
+        saveHandoffBtn.className = 'btn-reset';
+        saveHandoffBtn.style.cssText = 'background: #10b981; font-weight: 700; font-size: 1.05rem;';
+        saveHandoffBtn.innerHTML = '💾 Save Session & Hand Off to AE';
+        saveHandoffBtn.onclick = function() {
+          var customerName = window.currentCustomerName || prompt('Enter customer/prospect name to save this qualification:');
+          if (customerName && customerName.trim()) {
+            saveSession(customerName.trim());
+          }
+        };
+        
+        // Insert before the PDF button
+        pdfBtn.parentNode.insertBefore(saveHandoffBtn, pdfBtn);
+      }
+      
       var categoryScores = calculateScores();
+      
+      // Calculate BDR Qualification Score if in BDR mode
+      var bdrScore = null;
+      if (state.discoveryMode === 'bdr' || state.answers['bdr_authority']) {
+        bdrScore = calculateBDRScore();
+      }
+      
+      // Display BDR Score if available
+      if (bdrScore !== null) {
+        var bdrScoreDiv = document.createElement('div');
+        var bdrColor = bdrScore.level === 'Hot' ? '#10b981' : bdrScore.level === 'Warm' ? '#f59e0b' : '#64748b';
+        bdrScoreDiv.style.cssText = 'background: linear-gradient(135deg, ' + bdrColor + ' 0%, ' + adjustColor(bdrColor, -20) + ' 100%); color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+        bdrScoreDiv.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center;"><div><div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px;">BDR Qualification Score</div><div style="font-size: 2.5rem; font-weight: 700;">' + bdrScore.score + '/100</div><div style="font-size: 1.1rem; font-weight: 600; margin-top: 5px;">' + bdrScore.level + ' Lead</div></div><div style="text-align: right;"><div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 8px;">BANT Qualification:</div><div style="font-size: 0.9rem; line-height: 1.6;">' + bdrScore.summary + '</div></div></div>';
+        
+        var resultsView = document.getElementById('resultsView');
+        var insertPoint = resultsView.querySelector('.scores-grid');
+        resultsView.insertBefore(bdrScoreDiv, insertPoint);
+        
+        // Add BDR handoff instructions if in BDR mode
+        if (state.discoveryMode === 'bdr') {
+          var handoffInstructions = document.createElement('div');
+          handoffInstructions.style.cssText = 'background: #f0f9ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin-bottom: 25px;';
+          handoffInstructions.innerHTML = '<div style="display: flex; align-items: start; gap: 15px;"><div style="font-size: 2rem;">👉</div><div><div style="font-weight: 700; color: #1e40af; font-size: 1.1rem; margin-bottom: 8px;">Next Steps for BDR:</div><div style="color: #1e40af; line-height: 1.6; font-size: 0.95rem;">1. Click <strong>"Save Session & Hand Off to AE"</strong> above to save this qualification<br>2. Schedule the discovery call with the prospect<br>3. Share this saved session name with your AE so they can load the context<br>4. The AE will run the full discovery using the same tool in "Full Discovery" mode</div></div></div>';
+          resultsView.insertBefore(handoffInstructions, insertPoint);
+        }
+      }
       
       // Generate product recommendations
       var recommendations = generateRecommendations(categoryScores);
@@ -3279,7 +3862,10 @@
           talkingPoint = talkingPoints[category][data.level];
         }
         
-        card.innerHTML = '<div class="score-header"><h3>' + category + '</h3><span class="impact-badge">' + data.level + ' Impact</span></div><div class="score-value">📊 Score: ' + data.score.toFixed(2) + '</div><div class="talking-point">' + talkingPoint + '</div>';
+        // Convert talking point to bulleted format
+        var formattedTalkingPoint = formatTalkingPointAsBullets(talkingPoint);
+        
+        card.innerHTML = '<div class="score-header"><h3>' + category + '</h3><span class="impact-badge">' + data.level + ' Impact</span></div><div class="score-value">📊 Score: ' + data.score.toFixed(2) + '</div><div class="talking-point">' + formattedTalkingPoint + '</div>';
         
         scoresGrid.appendChild(card);
       }
@@ -3302,7 +3888,199 @@
           recCard.onclick = function() {
             var prod = this.getAttribute('data-product');
             if (confirm('Start discovery for ' + products[prod].name + '?')) {
-              selectProduct(prod);
+              startNewProductDiscovery(prod);
+            }
+          };
+          recCard.setAttribute('data-product', recProduct);
+          
+          recCard.innerHTML = '<div style="display: flex; align-items: center; gap: 15px;"><div style="width: 50px; height: 50px; background: ' + rec.color + '; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold;">→</div><div style="flex: 1;"><div style="font-weight: 600; color: #1e293b; font-size: 1.1rem; margin-bottom: 5px;">' + rec.productName + '</div><div style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">' + rec.reason + '</div></div></div>';
+          
+          recContainer.appendChild(recCard);
+        }
+      } else {
+        document.getElementById('recommendationsSection').style.display = 'none';
+      }
+      
+      var answersContainer = document.getElementById('answersContainer');
+      answersContainer.innerHTML = '';
+      
+      for (var i = 0; i < state.filteredQuestions.length; i++) {
+        var q = state.filteredQuestions[i];
+        var answer = state.answers[q.id];
+        
+        if (answer) {
+          var answerItem = document.createElement('div');
+          answerItem.className = 'answer-item';
+          answerItem.innerHTML = '<div class="answer-category">' + q.category + '</div><div class="answer-question">' + q.question + '</div><div class="answer-text">→ ' + answer + '</div>';
+          answersContainer.appendChild(answerItem);
+        }
+      }
+    }
+    
+    // Format talking points as bulleted list
+    function formatTalkingPointAsBullets(text) {
+      // Split on sentences followed by keywords that indicate new bullets
+      var bullets = [];
+      
+      // Split by common delimiters in our talking points
+      var segments = text.split(/\. (?=Value drivers:|Solutions:|Organizations)/);
+      
+      // If no specific segments found, try to intelligently break up the text
+      if (segments.length === 1) {
+        // Look for sentence patterns and create bullets
+        var sentences = text.split(/\.\s+/);
+        var currentBullet = '';
+        
+        for (var i = 0; i < sentences.length; i++) {
+          var sentence = sentences[i].trim();
+          if (!sentence) continue;
+          
+          // Start new bullet on key phrases
+          if (sentence.match(/^(Value drivers|Solutions|Organizations|Typical|Consider|Focus)/i)) {
+            if (currentBullet) bullets.push(currentBullet);
+            currentBullet = sentence;
+          } else {
+            currentBullet += (currentBullet ? '. ' : '') + sentence;
+          }
+        }
+        if (currentBullet) bullets.push(currentBullet);
+      } else {
+        bullets = segments;
+      }
+      
+      // Build HTML with bullets
+      var html = '<ul style="margin: 0; padding-left: 20px; line-height: 1.7;">';
+      for (var i = 0; i < bullets.length; i++) {
+        var bullet = bullets[i].trim();
+        if (bullet && bullet.length > 10) { // Skip very short fragments
+          // Add period if missing
+          if (!bullet.match(/[.!?]$/)) bullet += '.';
+          html += '<li style="margin-bottom: 8px;">' + bullet + '</li>';
+        }
+      }
+      html += '</ul>';
+      
+      return html;
+    }
+      document.getElementById('questionView').classList.add('hidden');
+      document.getElementById('resultsView').classList.remove('hidden');
+      
+      document.getElementById('resultsProduct').textContent = products[state.currentProduct].name;
+      
+      // Show completion status
+      var answeredCount = Object.keys(state.answers).length;
+      var totalQuestions = state.filteredQuestions.length;
+      var completionRate = Math.round((answeredCount / totalQuestions) * 100);
+      
+      if (completionRate < 100) {
+        var noticeDiv = document.createElement('div');
+        noticeDiv.style.cssText = 'background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 15px; margin-bottom: 20px;';
+        noticeDiv.innerHTML = '<div style="display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5rem;">⚠️</span><div><strong>Partial Discovery Results</strong><br><span style="color: #92400e; font-size: 0.9rem;">' + answeredCount + ' of ' + totalQuestions + ' questions answered (' + completionRate + '% complete). Scores are calculated based on answered questions only. Continue discovery in future conversations to refine results.</span></div></div>';
+        
+        var resultsView = document.getElementById('resultsView');
+        resultsView.insertBefore(noticeDiv, resultsView.children[1]);
+      }
+      
+      var resetBtn = document.getElementById('resetBtn');
+      resetBtn.onclick = resetTool;
+      
+      var pdfBtn = document.getElementById('downloadPdfBtn');
+      pdfBtn.onclick = generatePDF;
+      
+      var summaryBtn = document.getElementById('generateSummaryBtn');
+      summaryBtn.onclick = generateExecutiveSummary;
+      
+      // In BDR mode, hide executive summary button and make save more prominent
+      if (state.discoveryMode === 'bdr') {
+        summaryBtn.style.display = 'none';
+        
+        // Add a prominent "Save & Hand Off to AE" button
+        var saveHandoffBtn = document.createElement('button');
+        saveHandoffBtn.className = 'btn-reset';
+        saveHandoffBtn.style.cssText = 'background: #10b981; font-weight: 700; font-size: 1.05rem;';
+        saveHandoffBtn.innerHTML = '💾 Save Session & Hand Off to AE';
+        saveHandoffBtn.onclick = function() {
+          var customerName = window.currentCustomerName || prompt('Enter customer/prospect name to save this qualification:');
+          if (customerName && customerName.trim()) {
+            saveSession(customerName.trim());
+          }
+        };
+        
+        // Insert before the PDF button
+        pdfBtn.parentNode.insertBefore(saveHandoffBtn, pdfBtn);
+      }
+      
+      var categoryScores = calculateScores();
+      
+      // Calculate BDR Qualification Score if in BDR mode
+      var bdrScore = null;
+      if (state.discoveryMode === 'bdr' || state.answers['bdr_authority']) {
+        bdrScore = calculateBDRScore();
+      }
+      
+      // Display BDR Score if available
+      if (bdrScore !== null) {
+        var bdrScoreDiv = document.createElement('div');
+        var bdrColor = bdrScore.level === 'Hot' ? '#10b981' : bdrScore.level === 'Warm' ? '#f59e0b' : '#64748b';
+        bdrScoreDiv.style.cssText = 'background: linear-gradient(135deg, ' + bdrColor + ' 0%, ' + adjustColor(bdrColor, -20) + ' 100%); color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+        bdrScoreDiv.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center;"><div><div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px;">BDR Qualification Score</div><div style="font-size: 2.5rem; font-weight: 700;">' + bdrScore.score + '/100</div><div style="font-size: 1.1rem; font-weight: 600; margin-top: 5px;">' + bdrScore.level + ' Lead</div></div><div style="text-align: right;"><div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 8px;">BANT Qualification:</div><div style="font-size: 0.9rem; line-height: 1.6;">' + bdrScore.summary + '</div></div></div>';
+        
+        var resultsView = document.getElementById('resultsView');
+        var insertPoint = resultsView.querySelector('.scores-grid');
+        resultsView.insertBefore(bdrScoreDiv, insertPoint);
+        
+        // Add BDR handoff instructions if in BDR mode
+        if (state.discoveryMode === 'bdr') {
+          var handoffInstructions = document.createElement('div');
+          handoffInstructions.style.cssText = 'background: #f0f9ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin-bottom: 25px;';
+          handoffInstructions.innerHTML = '<div style="display: flex; align-items: start; gap: 15px;"><div style="font-size: 2rem;">👉</div><div><div style="font-weight: 700; color: #1e40af; font-size: 1.1rem; margin-bottom: 8px;">Next Steps for BDR:</div><div style="color: #1e40af; line-height: 1.6; font-size: 0.95rem;">1. Click <strong>"Save Session & Hand Off to AE"</strong> above to save this qualification<br>2. Schedule the discovery call with the prospect<br>3. Share this saved session name with your AE so they can load the context<br>4. The AE will run the full discovery using the same tool in "Full Discovery" mode</div></div></div>';
+          resultsView.insertBefore(handoffInstructions, insertPoint);
+        }
+      }
+      
+      // Generate product recommendations
+      var recommendations = generateRecommendations(categoryScores);
+      
+      var scoresGrid = document.getElementById('scoresGrid');
+      scoresGrid.innerHTML = '';
+      
+      for (var category in categoryScores) {
+        var data = categoryScores[category];
+        var card = document.createElement('div');
+        card.className = 'score-card ' + data.level.toLowerCase();
+        
+        var talkingPoint = 'No talking point available';
+        if (talkingPoints[category] && talkingPoints[category][data.level]) {
+          talkingPoint = talkingPoints[category][data.level];
+        }
+        
+        // Convert talking point to bulleted format
+        var formattedTalkingPoint = formatTalkingPointAsBullets(talkingPoint);
+        
+        card.innerHTML = '<div class="score-header"><h3>' + category + '</h3><span class="impact-badge">' + data.level + ' Impact</span></div><div class="score-value">📊 Score: ' + data.score.toFixed(2) + '</div><div class="talking-point">' + formattedTalkingPoint + '</div>';
+        
+        scoresGrid.appendChild(card);
+      }
+      
+      // Display recommendations
+      var recContainer = document.getElementById('recommendationsContainer');
+      recContainer.innerHTML = '';
+      
+      if (recommendations.length > 0) {
+        document.getElementById('recommendationsSection').style.display = 'block';
+        
+        for (var i = 0; i < recommendations.length; i++) {
+          var rec = recommendations[i];
+          var recCard = document.createElement('div');
+          recCard.style.cssText = 'background: white; border-left: 4px solid ' + rec.color + '; padding: 20px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s;';
+          recCard.onmouseover = function() { this.style.transform = 'translateX(5px)'; this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'; };
+          recCard.onmouseout = function() { this.style.transform = 'translateX(0)'; this.style.boxShadow = 'none'; };
+          
+          var recProduct = rec.product;
+          recCard.onclick = function() {
+            var prod = this.getAttribute('data-product');
+            if (confirm('Start discovery for ' + products[prod].name + '?')) {
+              startNewProductDiscovery(prod);
             }
           };
           recCard.setAttribute('data-product', recProduct);
