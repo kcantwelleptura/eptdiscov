@@ -441,12 +441,19 @@
         <div style="margin-top: 20px; margin-bottom: 20px;">
           <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; display: inline-block;">
             <div style="font-weight: 600; color: #1e293b; margin-bottom: 12px; font-size: 1.1rem;">Select Discovery Mode:</div>
-            <div style="display: flex; gap: 15px;">
-              <label style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; background: white; border: 2px solid #3b82f6; border-radius: 8px; font-weight: 600; color: #3b82f6;">
-                <input type="radio" name="discoveryMode" value="bdr" checked style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; background: white; border: 2px solid #10b981; border-radius: 8px; font-weight: 600; color: #10b981;">
+                <input type="radio" name="discoveryMode" value="outbound" checked style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
                 <div>
-                  <div style="font-size: 1rem;">🎯 BDR Quick Qual</div>
-                  <div style="font-size: 0.75rem; font-weight: normal; color: #64748b; margin-top: 2px;">5-8 questions • 2-3 min • BANT qualification</div>
+                  <div style="font-size: 1rem;">📞 Outbound Prospecting</div>
+                  <div style="font-size: 0.75rem; font-weight: normal; color: #64748b; margin-top: 2px;">3-5 questions • 1-2 min • Build need & qualify</div>
+                </div>
+              </label>
+              <label style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; color: #64748b;">
+                <input type="radio" name="discoveryMode" value="bdr" style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+                <div>
+                  <div style="font-size: 1rem; font-weight: 600;">🎯 BDR Quick Qual</div>
+                  <div style="font-size: 0.75rem; font-weight: normal; color: #64748b; margin-top: 2px;">8 questions • 2-3 min • BANT qualification</div>
                 </div>
               </label>
               <label style="display: flex; align-items: center; cursor: pointer; padding: 12px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; color: #64748b;">
@@ -523,6 +530,12 @@
             <button class="btn btn-secondary" id="prevBtn">
               ← Previous
             </button>
+            <button class="btn" id="viewResultsBtn" onclick="showResults()" style="background: #8b5cf6; color: white; display: none;">
+              📊 View Results
+            </button>
+            <button class="btn" id="backToHomeBtn" onclick="confirmBackToHome()" style="background: #64748b; color: white;">
+              🏠 Back to Home
+            </button>
             <button class="btn" id="saveSessionBtn" onclick="promptSaveSession()" style="background: #10b981; color: white;">
               💾 Save Progress
             </button>
@@ -557,7 +570,7 @@
           <div style="display: flex; gap: 10px;">
             <button class="btn-reset" id="generateSummaryBtn" style="background: #8b5cf6;">📊 Generate Executive Summary</button>
             <button class="btn-reset" id="downloadPdfBtn" style="background: #3b82f6;">Download PDF</button>
-            <button class="btn-reset" id="resetBtn">Start Over</button>
+            <button class="btn-reset" id="resetBtn">🏠 Back to Home</button>
           </div>
         </div>
 
@@ -867,6 +880,88 @@
     };
 
     var questions = [
+      // ===== OUTBOUND PROSPECTING - VISITOR MANAGEMENT =====
+      // Short need-building questions with smart branching for cold outreach
+      
+      {
+        id: 'outbound_role_check',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Just to make sure I\'m talking to the right person—do you oversee visitor management, front desk operations, or workplace security?',
+        followUp: 'Want to make sure this is relevant to your role.',
+        options: ['Yes, that\'s me', 'I\'m involved but not the lead', 'Wrong person—you need someone else'],
+        scoreMap: { 'Yes, that\'s me': 1, 'I\'m involved but not the lead': 2, 'Wrong person—you need someone else': 3 },
+        nextQuestion: function(answer) {
+          if (answer === 'Wrong person—you need someone else') return 'outbound_referral';
+          return 'outbound_current_solution';
+        }
+      },
+      {
+        id: 'outbound_referral',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'No problem! Who should I be talking to about visitor management?',
+        followUp: 'Just need a name or title so I can reach out to the right person.',
+        options: ['Facilities Manager', 'Office Manager', 'Security Director', 'Not sure / Let me find out'],
+        scoreMap: { 'Facilities Manager': 1, 'Office Manager': 1, 'Security Director': 1, 'Not sure / Let me find out': 2 },
+        allowText: true,
+        textPrompt: 'Name or contact info (optional):',
+        nextQuestion: null // End - wrong person
+      },
+      {
+        id: 'outbound_current_solution',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How are you handling visitor check-in today?',
+        followUp: 'Just curious what your current setup looks like.',
+        options: ['Paper logbook or spreadsheets', 'We have a visitor management system', 'Mix of both / depends on location'],
+        scoreMap: { 'Paper logbook or spreadsheets': 3, 'We have a visitor management system': 1, 'Mix of both / depends on location': 2 },
+        nextQuestion: function(answer) {
+          if (answer === 'We have a visitor management system') return 'outbound_system_satisfaction';
+          return 'outbound_pain_manual';
+        }
+      },
+      {
+        id: 'outbound_system_satisfaction',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How\'s that working for you? Are you pretty happy with it?',
+        followUp: 'Most people have a wish list even with systems in place.',
+        options: ['Works great, no complaints', 'It\'s okay but has some gaps', 'Pretty frustrated with it honestly'],
+        scoreMap: { 'Works great, no complaints': 1, 'It\'s okay but has some gaps': 2, 'Pretty frustrated with it honestly': 3 },
+        allowText: true,
+        textPrompt: 'What\'s the biggest gap or frustration? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_pain_manual',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'What\'s the biggest headache with your current process?',
+        followUp: 'I hear different things from different people—curious what bugs you most.',
+        options: ['Time consuming / slows down reception', 'Security and compliance concerns', 'Hard to get reports when we need them', 'Honestly, it works fine for now'],
+        scoreMap: { 'Time consuming / slows down reception': 3, 'Security and compliance concerns': 3, 'Hard to get reports when we need them': 2, 'Honestly, it works fine for now': 1 },
+        allowText: true,
+        textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_next_steps',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Based on what you\'ve shared, it sounds like there might be some value in a quick 15-minute call to show you how we\'re helping companies solve this. Would that be worth your time?',
+        followUp: 'No pressure—just want to share what\'s working for others in your situation.',
+        options: ['Yes, let\'s schedule something', 'Maybe—send me some info first', 'Not interested right now'],
+        scoreMap: { 'Yes, let\'s schedule something': 1, 'Maybe—send me some info first': 2, 'Not interested right now': 3 },
+        nextQuestion: null // End
+      },
+      
       // ===== BDR QUALIFIER QUESTIONS - ALL PRODUCTS =====
       // These questions are shared across all products for BANT qualification
       
@@ -1340,6 +1435,86 @@
         options: ['complex customization', 'some customization', 'standard workflows'],
         scoreMap: { 'complex customization': 3, 'some customization': 2, 'standard workflows': 1 },
         nextQuestion: null // End
+      },
+      
+      // ===== OUTBOUND PROSPECTING - WORKPLACE MANAGEMENT =====
+      {
+        id: 'outbound_role_check',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Just to make sure I\'m talking to the right person—do you handle office space planning, real estate, or workplace strategy?',
+        followUp: 'Want to make sure this is relevant to your role.',
+        options: ['Yes, that\'s me', 'I\'m involved but not the lead', 'Wrong person—you need someone else'],
+        scoreMap: { 'Yes, that\'s me': 1, 'I\'m involved but not the lead': 2, 'Wrong person—you need someone else': 3 },
+        nextQuestion: function(answer) {
+          if (answer === 'Wrong person—you need someone else') return 'outbound_referral';
+          return 'outbound_current_solution';
+        }
+      },
+      {
+        id: 'outbound_referral',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'No problem! Who should I be talking to about workplace and space management?',
+        followUp: 'Just need a name or title so I can reach out to the right person.',
+        options: ['Real Estate Manager', 'Facilities Director', 'Workplace Strategy Lead', 'Not sure / Let me find out'],
+        scoreMap: { 'Real Estate Manager': 1, 'Facilities Director': 1, 'Workplace Strategy Lead': 1, 'Not sure / Let me find out': 2 },
+        allowText: true,
+        textPrompt: 'Name or contact info (optional):',
+        nextQuestion: null
+      },
+      {
+        id: 'outbound_current_solution',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How are you managing your office space and utilization today?',
+        followUp: 'CAD drawings? Spreadsheets? A platform?',
+        options: ['Spreadsheets and CAD files', 'We have a workplace management platform', 'Mix of tools / varies by location'],
+        scoreMap: { 'Spreadsheets and CAD files': 3, 'We have a workplace management platform': 1, 'Mix of tools / varies by location': 2 },
+        nextQuestion: function(answer) {
+          if (answer === 'We have a workplace management platform') return 'outbound_system_satisfaction';
+          return 'outbound_pain_manual';
+        }
+      },
+      {
+        id: 'outbound_system_satisfaction',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How\'s that working for you? Getting what you need from it?',
+        followUp: 'Most teams tell us there\'s room for improvement.',
+        options: ['Works great, no complaints', 'It\'s okay but missing some things', 'Pretty limited / frustrating to use'],
+        scoreMap: { 'Works great, no complaints': 1, 'It\'s okay but missing some things': 2, 'Pretty limited / frustrating to use': 3 },
+        allowText: true,
+        textPrompt: 'What\'s missing or frustrating? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_pain_manual',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'What\'s the biggest challenge with managing your space right now?',
+        followUp: 'Hybrid work? Cost pressure? Something else?',
+        options: ['Can\'t see utilization / making blind decisions', 'Too much manual work keeping data current', 'Can\'t justify space costs to leadership', 'No major issues right now'],
+        scoreMap: { 'Can\'t see utilization / making blind decisions': 3, 'Too much manual work keeping data current': 3, 'Can\'t justify space costs to leadership': 3, 'No major issues right now': 1 },
+        allowText: true,
+        textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_next_steps',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Based on what you\'ve shared, it sounds like there might be some value in a quick 15-minute call to show you how we\'re helping companies solve this. Would that be worth your time?',
+        followUp: 'No pressure—just want to share what\'s working for others in your situation.',
+        options: ['Yes, let\'s schedule something', 'Maybe—send me some info first', 'Not interested right now'],
+        scoreMap: { 'Yes, let\'s schedule something': 1, 'Maybe—send me some info first': 2, 'Not interested right now': 3 },
+        nextQuestion: null
       },
       
       // ===== BDR QUALIFIER - WORKPLACE =====
@@ -1859,6 +2034,86 @@
         scoreMap: { 'complex migration': 3, 'simple migration': 2, 'greenfield': 1 }
       },
       
+      // ===== OUTBOUND PROSPECTING - ASSET MANAGEMENT =====
+      {
+        id: 'outbound_role_check',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Just to make sure I\'m talking to the right person—do you oversee maintenance, asset management, or facilities operations?',
+        followUp: 'Want to make sure this is relevant to your role.',
+        options: ['Yes, that\'s me', 'I\'m involved but not the lead', 'Wrong person—you need someone else'],
+        scoreMap: { 'Yes, that\'s me': 1, 'I\'m involved but not the lead': 2, 'Wrong person—you need someone else': 3 },
+        nextQuestion: function(answer) {
+          if (answer === 'Wrong person—you need someone else') return 'outbound_referral';
+          return 'outbound_current_solution';
+        }
+      },
+      {
+        id: 'outbound_referral',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'No problem! Who should I be talking to about asset and maintenance management?',
+        followUp: 'Just need a name or title so I can reach out to the right person.',
+        options: ['Maintenance Manager', 'Facilities Director', 'Operations Manager', 'Not sure / Let me find out'],
+        scoreMap: { 'Maintenance Manager': 1, 'Facilities Director': 1, 'Operations Manager': 1, 'Not sure / Let me find out': 2 },
+        allowText: true,
+        textPrompt: 'Name or contact info (optional):',
+        nextQuestion: null
+      },
+      {
+        id: 'outbound_current_solution',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How are you tracking maintenance and work orders today?',
+        followUp: 'Paper? Spreadsheets? A CMMS?',
+        options: ['Paper work orders and spreadsheets', 'We have a CMMS system', 'Mix of both / depends on site'],
+        scoreMap: { 'Paper work orders and spreadsheets': 3, 'We have a CMMS system': 1, 'Mix of both / depends on site': 2 },
+        nextQuestion: function(answer) {
+          if (answer === 'We have a CMMS system') return 'outbound_system_satisfaction';
+          return 'outbound_pain_manual';
+        }
+      },
+      {
+        id: 'outbound_system_satisfaction',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How\'s that CMMS working for you? Does it do everything you need?',
+        followUp: 'A lot of teams tell us their system is clunky or missing key features.',
+        options: ['Works great, no complaints', 'It\'s okay but pretty limited', 'Honestly pretty painful to use'],
+        scoreMap: { 'Works great, no complaints': 1, 'It\'s okay but pretty limited': 2, 'Honestly pretty painful to use': 3 },
+        allowText: true,
+        textPrompt: 'What\'s most frustrating about it? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_pain_manual',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'What\'s the biggest pain point with your current maintenance process?',
+        followUp: 'Downtime? Lost work orders? Can\'t find what you need?',
+        options: ['Too much reactive maintenance / breakdowns', 'Can\'t track history or see what\'s coming', 'Too manual / paperwork nightmare', 'Works okay for now'],
+        scoreMap: { 'Too much reactive maintenance / breakdowns': 3, 'Can\'t track history or see what\'s coming': 3, 'Too manual / paperwork nightmare': 3, 'Works okay for now': 1 },
+        allowText: true,
+        textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_next_steps',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Based on what you\'ve shared, it sounds like there might be some value in a quick 15-minute call to show you how we\'re helping companies solve this. Would that be worth your time?',
+        followUp: 'No pressure—just want to share what\'s working for others in your situation.',
+        options: ['Yes, let\'s schedule something', 'Maybe—send me some info first', 'Not interested right now'],
+        scoreMap: { 'Yes, let\'s schedule something': 1, 'Maybe—send me some info first': 2, 'Not interested right now': 3 },
+        nextQuestion: null
+      },
+      
       // ===== BDR QUALIFIER - ASSET MANAGEMENT =====
       {
         id: 'bdr_authority',
@@ -2285,6 +2540,86 @@
         scoreMap: { '5+ warehouses': 3, '2-4 warehouses': 2, '0-1 warehouse': 1 }
       },
       
+      // ===== OUTBOUND PROSPECTING - EMPLOYEE ENGAGEMENT =====
+      {
+        id: 'outbound_role_check',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Just to make sure I\'m talking to the right person—do you handle desk booking, employee experience, or workplace coordination?',
+        followUp: 'Want to make sure this is relevant to your role.',
+        options: ['Yes, that\'s me', 'I\'m involved but not the lead', 'Wrong person—you need someone else'],
+        scoreMap: { 'Yes, that\'s me': 1, 'I\'m involved but not the lead': 2, 'Wrong person—you need someone else': 3 },
+        nextQuestion: function(answer) {
+          if (answer === 'Wrong person—you need someone else') return 'outbound_referral';
+          return 'outbound_current_solution';
+        }
+      },
+      {
+        id: 'outbound_referral',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'No problem! Who should I be talking to about desk booking and employee engagement?',
+        followUp: 'Just need a name or title so I can reach out to the right person.',
+        options: ['HR/People Ops', 'Workplace Experience Manager', 'Office Manager', 'Not sure / Let me find out'],
+        scoreMap: { 'HR/People Ops': 1, 'Workplace Experience Manager': 1, 'Office Manager': 1, 'Not sure / Let me find out': 2 },
+        allowText: true,
+        textPrompt: 'Name or contact info (optional):',
+        nextQuestion: null
+      },
+      {
+        id: 'outbound_current_solution',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How are employees booking desks and coordinating office days right now?',
+        followUp: 'Email? Shared calendar? Something else?',
+        options: ['Email or manual coordination', 'We have a desk booking system', 'Mix of approaches / depends on team'],
+        scoreMap: { 'Email or manual coordination': 3, 'We have a desk booking system': 1, 'Mix of approaches / depends on team': 2 },
+        nextQuestion: function(answer) {
+          if (answer === 'We have a desk booking system') return 'outbound_system_satisfaction';
+          return 'outbound_pain_manual';
+        }
+      },
+      {
+        id: 'outbound_system_satisfaction',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'How\'s that booking system working? Are people actually using it?',
+        followUp: 'A lot of companies struggle with adoption even when they have a system.',
+        options: ['Works great, high adoption', 'It\'s okay but adoption is spotty', 'Low adoption / people avoid it'],
+        scoreMap: { 'Works great, high adoption': 1, 'It\'s okay but adoption is spotty': 2, 'Low adoption / people avoid it': 3 },
+        allowText: true,
+        textPrompt: 'Why do you think adoption is low? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_pain_manual',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'What\'s the biggest challenge with coordinating hybrid work right now?',
+        followUp: 'Team collaboration? Desk availability? Something else?',
+        options: ['People can\'t find desks / space chaos', 'Hard to coordinate team days in office', 'Can\'t see who\'s coming in when', 'Honestly, it\'s working okay'],
+        scoreMap: { 'People can\'t find desks / space chaos': 3, 'Hard to coordinate team days in office': 3, 'Can\'t see who\'s coming in when': 3, 'Honestly, it\'s working okay': 1 },
+        allowText: true,
+        textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_next_steps'
+      },
+      {
+        id: 'outbound_next_steps',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Based on what you\'ve shared, it sounds like there might be some value in a quick 15-minute call to show you how we\'re helping companies solve this. Would that be worth your time?',
+        followUp: 'No pressure—just want to share what\'s working for others in your situation.',
+        options: ['Yes, let\'s schedule something', 'Maybe—send me some info first', 'Not interested right now'],
+        scoreMap: { 'Yes, let\'s schedule something': 1, 'Maybe—send me some info first': 2, 'Not interested right now': 3 },
+        nextQuestion: null
+      },
+      
       // ===== BDR QUALIFIER - EMPLOYEE ENGAGEMENT =====
       {
         id: 'bdr_authority',
@@ -2697,7 +3032,7 @@
       
       // Get selected discovery mode
       var modeRadio = document.querySelector('input[name="discoveryMode"]:checked');
-      var mode = modeRadio ? modeRadio.value : 'bdr'; // Default to BDR mode
+      var mode = modeRadio ? modeRadio.value : 'outbound'; // Default to Outbound mode
       state.discoveryMode = mode;
       
       // Filter questions based on product and mode
@@ -2705,13 +3040,18 @@
       for (var i = 0; i < questions.length; i++) {
         var q = questions[i];
         if (q.product === product) {
-          if (mode === 'bdr') {
+          if (mode === 'outbound') {
+            // Outbound mode: only show outbound prospecting questions
+            if (q.isOutbound === true) {
+              state.filteredQuestions.push(q);
+            }
+          } else if (mode === 'bdr') {
             // BDR mode: only show BDR qualification questions
             if (q.isBDR === true) {
               state.filteredQuestions.push(q);
             }
           } else {
-            // Full mode: show BDR questions + all discovery questions
+            // Full mode: show all questions (outbound + BDR + discovery)
             state.filteredQuestions.push(q);
           }
         }
@@ -3063,6 +3403,15 @@
       
       var isLastQuestion = state.currentStep === state.filteredQuestions.length - 1;
       document.getElementById('nextBtn').innerHTML = isLastQuestion ? 'View Results →' : 'Next →';
+      
+      // Show "View Results" button if they have at least 3 answers (so they can return to results)
+      var answeredCount = Object.keys(state.answers).length;
+      var viewResultsBtn = document.getElementById('viewResultsBtn');
+      if (answeredCount >= 3) {
+        viewResultsBtn.style.display = 'inline-block';
+      } else {
+        viewResultsBtn.style.display = 'none';
+      }
     }
 
     function previousQuestion() {
@@ -3144,11 +3493,18 @@
       // Reset state completely
       state.answers = {};
       state.currentStep = 0;
+      state.viewMode = 'step';
       window.currentSessionKey = null;
       window.currentCustomerName = null;
       
-      // Hide results view
+      // Hide results view, show question view
       document.getElementById('resultsView').classList.add('hidden');
+      document.getElementById('questionView').classList.remove('hidden');
+      document.getElementById('productSelection').classList.add('hidden');
+      
+      // Make sure we're in step view, not list view
+      document.getElementById('stepByStepView').classList.remove('hidden');
+      document.getElementById('listView').classList.add('hidden');
       
       // Select and start the new product
       selectProduct(productId);
@@ -3978,6 +4334,16 @@
       
       document.getElementById('resultsView').classList.add('hidden');
       document.getElementById('productSelection').classList.remove('hidden');
+    }
+    
+    function confirmBackToHome() {
+      if (Object.keys(state.answers).length > 0) {
+        if (confirm('Are you sure you want to go back to home? Make sure you\'ve saved your progress first.')) {
+          resetTool();
+        }
+      } else {
+        resetTool();
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
