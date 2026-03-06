@@ -935,7 +935,7 @@
         scoreMap: { 'Works great, no complaints': 1, 'It\'s okay but has some gaps': 2, 'Pretty frustrated with it honestly': 3 },
         allowText: true,
         textPrompt: 'What\'s the biggest gap or frustration? (optional):',
-        nextQuestion: 'outbound_next_steps'
+        nextQuestion: 'outbound_interest_builder'
       },
       {
         id: 'outbound_pain_manual',
@@ -948,6 +948,17 @@
         scoreMap: { 'Time consuming / slows down reception': 3, 'Security and compliance concerns': 3, 'Hard to get reports when we need them': 2, 'Honestly, it works fine for now': 1 },
         allowText: true,
         textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_interest_builder'
+      },
+      {
+        id: 'outbound_interest_builder',
+        product: 'visitor',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'Just curious—if you could wave a magic wand and fix one thing about visitor check-in tomorrow, what would it be?',
+        followUp: 'I\'m asking because we\'ve helped companies turn some of these "wish list" items into reality pretty quickly.',
+        options: ['Faster check-in for visitors', 'Better security and compliance tracking', 'Automated notifications to hosts', 'Real-time visibility and reporting', 'Not sure / haven\'t thought about it'],
+        scoreMap: { 'Faster check-in for visitors': 3, 'Better security and compliance tracking': 3, 'Automated notifications to hosts': 2, 'Real-time visibility and reporting': 2, 'Not sure / haven\'t thought about it': 1 },
         nextQuestion: 'outbound_next_steps'
       },
       {
@@ -1490,7 +1501,7 @@
         scoreMap: { 'Works great, no complaints': 1, 'It\'s okay but missing some things': 2, 'Pretty limited / frustrating to use': 3 },
         allowText: true,
         textPrompt: 'What\'s missing or frustrating? (optional):',
-        nextQuestion: 'outbound_next_steps'
+        nextQuestion: 'outbound_interest_builder'
       },
       {
         id: 'outbound_pain_manual',
@@ -1503,6 +1514,17 @@
         scoreMap: { 'Can\'t see utilization / making blind decisions': 3, 'Too much manual work keeping data current': 3, 'Can\'t justify space costs to leadership': 3, 'No major issues right now': 1 },
         allowText: true,
         textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_interest_builder'
+      },
+      {
+        id: 'outbound_interest_builder',
+        product: 'workplace',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'If you could see one piece of data about your office space that you don\'t have today, what would be most valuable?',
+        followUp: 'I ask because most companies are surprised by what the data actually shows—often very different from assumptions.',
+        options: ['Real-time desk/room utilization by location', 'Cost per square foot with actual usage', 'Peak occupancy patterns and trends', 'Space waste and optimization opportunities', 'Not sure what would help most'],
+        scoreMap: { 'Real-time desk/room utilization by location': 3, 'Cost per square foot with actual usage': 3, 'Peak occupancy patterns and trends': 2, 'Space waste and optimization opportunities': 3, 'Not sure what would help most': 1 },
         nextQuestion: 'outbound_next_steps'
       },
       {
@@ -2087,7 +2109,7 @@
         scoreMap: { 'Works great, no complaints': 1, 'It\'s okay but pretty limited': 2, 'Honestly pretty painful to use': 3 },
         allowText: true,
         textPrompt: 'What\'s most frustrating about it? (optional):',
-        nextQuestion: 'outbound_next_steps'
+        nextQuestion: 'outbound_interest_builder'
       },
       {
         id: 'outbound_pain_manual',
@@ -2100,6 +2122,17 @@
         scoreMap: { 'Too much reactive maintenance / breakdowns': 3, 'Can\'t track history or see what\'s coming': 3, 'Too manual / paperwork nightmare': 3, 'Works okay for now': 1 },
         allowText: true,
         textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_interest_builder'
+      },
+      {
+        id: 'outbound_interest_builder',
+        product: 'asset',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'If you could shift from reactive to preventive maintenance on your most critical assets, what would that be worth to you?',
+        followUp: 'I ask because we typically see 30-40% reduction in unplanned downtime when companies make that shift.',
+        options: ['Would save us significant downtime costs', 'Would help but hard to quantify', 'Extend asset life and reduce replacements', 'Better predict budgets and staffing', 'Not sure / would need to see it'],
+        scoreMap: { 'Would save us significant downtime costs': 3, 'Would help but hard to quantify': 2, 'Extend asset life and reduce replacements': 3, 'Better predict budgets and staffing': 2, 'Not sure / would need to see it': 1 },
         nextQuestion: 'outbound_next_steps'
       },
       {
@@ -2593,7 +2626,7 @@
         scoreMap: { 'Works great, high adoption': 1, 'It\'s okay but adoption is spotty': 2, 'Low adoption / people avoid it': 3 },
         allowText: true,
         textPrompt: 'Why do you think adoption is low? (optional):',
-        nextQuestion: 'outbound_next_steps'
+        nextQuestion: 'outbound_interest_builder'
       },
       {
         id: 'outbound_pain_manual',
@@ -2606,6 +2639,17 @@
         scoreMap: { 'People can\'t find desks / space chaos': 3, 'Hard to coordinate team days in office': 3, 'Can\'t see who\'s coming in when': 3, 'Honestly, it\'s working okay': 1 },
         allowText: true,
         textPrompt: 'Any specific example? (optional):',
+        nextQuestion: 'outbound_interest_builder'
+      },
+      {
+        id: 'outbound_interest_builder',
+        product: 'engage',
+        category: 'Outbound Prospecting',
+        isOutbound: true,
+        question: 'If employees could see their teammates\' office schedules and book desks near them with one click, how much would that improve collaboration?',
+        followUp: 'We\'re seeing 60-70% adoption rates when booking is actually easy and shows who else is coming in.',
+        options: ['Game changer—that\'s exactly what we need', 'Would definitely help team coordination', 'Nice to have but not critical', 'Interesting but would need to see it', 'Not sure that would help us'],
+        scoreMap: { 'Game changer—that\'s exactly what we need': 3, 'Would definitely help team coordination': 3, 'Nice to have but not critical': 2, 'Interesting but would need to see it': 2, 'Not sure that would help us': 1 },
         nextQuestion: 'outbound_next_steps'
       },
       {
