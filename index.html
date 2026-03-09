@@ -4515,14 +4515,14 @@
       }
       
       if (topScore === 0) {
-        document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;"><strong>⚠️ No clear value drivers detected</strong><br><span style="color: #92400e;">The RFP may be too general or doesn\'t match our product categories. Consider running a discovery call instead.</span></div>';
+        document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;"><strong>⚠️ No clear value drivers detected</strong><br><span style="color: #92400e;">The RFP may be too general or doesn\'t match our product categories. Try uploading a different section or document.</span></div>';
         return;
       }
       
       rfpAnalysisData = { product: topProduct, analysis: analysis };
       
-      // Display value drivers
-      var html = '<h3 style="color: #1e293b; margin-bottom: 15px;">🎯 Identified Value Drivers</h3>';
+      // Display value drivers identified
+      var html = '<h3 style="color: #1e293b; margin-bottom: 15px;">🎯 Requirements Analysis</h3>';
       
       for (var product in analysis) {
         if (analysis[product].score > 0) {
@@ -4532,7 +4532,7 @@
           html += '<div style="margin-bottom: 20px; padding: 20px; background: white; border-left: 4px solid ' + color + '; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">';
           html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
           html += '<h4 style="margin: 0; color: #1e293b;">' + productName + '</h4>';
-          html += '<span style="background: ' + color + '; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">' + analysis[product].score + ' mentions</span>';
+          html += '<span style="background: ' + color + '; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">' + analysis[product].score + ' requirement mentions</span>';
           html += '</div>';
           
           if (Object.keys(analysis[product].categories).length > 0) {
@@ -4552,43 +4552,184 @@
       
       document.getElementById('rfpValueDrivers').innerHTML = html;
       
-      // Product recommendation
-      var recHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">💡 Recommendation</h3>';
-      recHtml += '<div style="padding: 20px; background: linear-gradient(135deg, ' + products[topProduct].color + ' 0%, ' + adjustColor(products[topProduct].color, -20) + ' 100%); color: white; border-radius: 8px;">';
-      recHtml += '<div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">Start with ' + products[topProduct].name + ' Discovery</div>';
-      recHtml += '<div style="opacity: 0.95;">This product has the strongest alignment with the RFP requirements. Run a guided discovery to uncover specific pain points and build your response.</div>';
+      // Generate value-driven response content
+      var responseContent = generateResponseContent(topProduct, analysis[topProduct]);
+      
+      var recHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">📝 Suggested Response Content</h3>';
+      recHtml += '<div style="padding: 20px; background: #f0fdf4; border: 2px solid #10b981; border-radius: 8px; margin-bottom: 20px;">';
+      recHtml += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">';
+      recHtml += '<div style="font-size: 1.1rem; font-weight: 600; color: #065f46;">Value-Driven Response Framework for ' + products[topProduct].name + '</div>';
+      recHtml += '<button onclick="copyResponseContent()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">📋 Copy All</button>';
+      recHtml += '</div>';
+      recHtml += '<div style="color: #065f46; font-size: 0.9rem; margin-bottom: 15px;">Use this content to craft compelling responses that address their requirements while emphasizing value and ROI.</div>';
+      recHtml += '<div id="responseContentText" style="background: white; padding: 20px; border-radius: 6px; border: 1px solid #d1fae5; line-height: 1.8; color: #1e293b;">';
+      recHtml += responseContent;
+      recHtml += '</div>';
       recHtml += '</div>';
       
       document.getElementById('rfpProductRecommendation').innerHTML = recHtml;
       
-      // Missing info / follow-up questions
-      var missingHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">❓ Key Questions to Ask</h3>';
-      missingHtml += '<div style="padding: 20px; background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px;">';
-      missingHtml += '<p style="margin: 0 0 10px 0; color: #92400e; font-weight: 600;">The RFP tells you WHAT they want, but not WHY. Use discovery to uncover:</p>';
-      missingHtml += '<ul style="margin: 0; padding-left: 20px; color: #92400e;">';
-      missingHtml += '<li>What\'s driving this RFP right now? (Timeline & urgency)</li>';
-      missingHtml += '<li>What problems are they trying to solve? (Pain points)</li>';
-      missingHtml += '<li>How are they measuring success? (KPIs & ROI expectations)</li>';
-      missingHtml += '<li>Who are the key stakeholders? (Decision makers)</li>';
-      missingHtml += '<li>What\'s their current process/system? (Competitive intel)</li>';
-      missingHtml += '</ul>';
-      missingHtml += '</div>';
+      // Key differentiators
+      var diffHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">✨ Key Differentiators to Emphasize</h3>';
+      diffHtml += generateDifferentiators(topProduct, analysis[topProduct]);
       
-      document.getElementById('rfpMissingInfo').innerHTML = missingHtml;
+      document.getElementById('rfpMissingInfo').innerHTML = diffHtml;
       
-      // Show start discovery button
-      document.getElementById('rfpStartDiscoveryBtn').style.display = 'inline-block';
+      // Hide start discovery button (not needed for RFP response mode)
+      document.getElementById('rfpStartDiscoveryBtn').style.display = 'none';
     }
     
-    function startDiscoveryFromRFP() {
-      if (!rfpAnalysisData) return;
+    function generateResponseContent(product, productAnalysis) {
+      var categories = productAnalysis.categories;
+      var content = '';
       
-      closeRFPAnalyzer();
-      selectProduct(rfpAnalysisData.product);
+      // Get relevant talking points based on detected categories
+      var relevantTalkingPoints = {};
+      for (var category in categories) {
+        if (talkingPoints[category]) {
+          relevantTalkingPoints[category] = talkingPoints[category]['High']; // Use high-impact talking points
+        }
+      }
+      
+      // Executive Summary
+      content += '<h4 style="color: #1e293b; margin-top: 0;">Executive Summary</h4>';
+      content += '<p>Our ' + products[product].name + ' solution directly addresses your requirements across ' + Object.keys(categories).length + ' key areas: ';
+      content += Object.keys(categories).join(', ') + '. ';
+      
+      // Add product-specific value prop
+      if (product === 'visitor') {
+        content += 'We deliver enterprise-grade visitor management that transforms your front desk from a bottleneck into a strategic asset, while ensuring compliance and enhancing security.</p>';
+      } else if (product === 'workplace') {
+        content += 'Our platform provides real-time visibility into space utilization, enabling data-driven decisions that typically yield 10-15% real estate cost savings within the first year.</p>';
+      } else if (product === 'asset') {
+        content += 'Our CMMS solution shifts organizations from reactive to preventive maintenance, reducing unplanned downtime by 30-40% and extending asset life by 15-25%.</p>';
+      } else if (product === 'engage') {
+        content += 'Our employee engagement platform drives 60-70% adoption rates by making hybrid coordination effortless, directly improving collaboration and space utilization.</p>';
+      }
+      
+      // Category-by-category responses
+      content += '<h4 style="color: #1e293b; margin-top: 20px;">How We Address Your Requirements</h4>';
+      
+      for (var category in relevantTalkingPoints) {
+        content += '<p><strong>' + category + ':</strong><br>';
+        
+        // Parse the talking point and extract key value propositions
+        var talkingPoint = relevantTalkingPoints[category];
+        
+        // Extract value drivers and solutions from talking points
+        if (talkingPoint.includes('Value drivers:')) {
+          var valueDrivers = talkingPoint.split('Value drivers:')[1].split('Solutions:')[0];
+          content += 'We deliver measurable impact through ' + valueDrivers.trim().toLowerCase() + ' ';
+        }
+        
+        if (talkingPoint.includes('Solutions:')) {
+          var solutions = talkingPoint.split('Solutions:')[1];
+          content += 'Our solution includes ' + solutions.trim().toLowerCase();
+        }
+        
+        content += '</p>';
+      }
+      
+      // ROI Section
+      content += '<h4 style="color: #1e293b; margin-top: 20px;">Expected ROI & Business Impact</h4>';
+      content += '<p>Based on your requirements and typical implementations of similar scope, you can expect:</p>';
+      content += '<ul style="margin: 10px 0; padding-left: 25px; line-height: 1.8;">';
+      
+      if (product === 'visitor') {
+        if (categories['Security & Compliance']) {
+          content += '<li><strong>Security & Compliance:</strong> 100% visitor screening compliance, automated watchlist checks, complete audit trail for regulatory requirements</li>';
+        }
+        if (categories['Operational Efficiency']) {
+          content += '<li><strong>Operational Efficiency:</strong> 60-70% reduction in check-in time, freeing up 10-15 hours/week of reception staff time</li>';
+        }
+        if (categories['Cost Savings']) {
+          content += '<li><strong>Cost Savings:</strong> Eliminate paper-based processes, reduce manual data entry by 80%, lower administrative overhead</li>';
+        }
+      } else if (product === 'workplace') {
+        if (categories['Cost Savings']) {
+          content += '<li><strong>Cost Savings:</strong> 10-15% reduction in real estate costs through space optimization, $150-900 per seat/month in avoided lease expenses</li>';
+        }
+        if (categories['Data & Analytics']) {
+          content += '<li><strong>Data & Analytics:</strong> Real-time utilization visibility enabling data-driven portfolio decisions, identifying 5-10% repurposing opportunities</li>';
+        }
+        if (categories['Operational Efficiency']) {
+          content += '<li><strong>Operational Efficiency:</strong> 50% faster move/change management, automated booking reducing administrative burden by 15-20 hours/week</li>';
+        }
+      } else if (product === 'asset') {
+        if (categories['Operational Efficiency']) {
+          content += '<li><strong>Operational Efficiency:</strong> 30-40% reduction in unplanned downtime, shift from 70% reactive to 70% preventive maintenance</li>';
+        }
+        if (categories['Cost Savings']) {
+          content += '<li><strong>Cost Savings:</strong> 15-25% extension in asset life, 20-30% reduction in emergency repair costs</li>';
+        }
+        if (categories['Compliance']) {
+          content += '<li><strong>Compliance:</strong> Automated inspection scheduling, complete maintenance history for audits, 100% regulatory compliance tracking</li>';
+        }
+      } else if (product === 'engage') {
+        if (categories['Employee Experience']) {
+          content += '<li><strong>Employee Experience:</strong> 60-70% platform adoption, 40% improvement in team coordination, see who\'s in office before booking</li>';
+        }
+        if (categories['Space Utilization']) {
+          content += '<li><strong>Space Utilization:</strong> Increase desk utilization from 45-65% baseline to 60-75% target, optimize conference room usage from 50-70% to 65-80%</li>';
+        }
+        if (categories['Operational Efficiency']) {
+          content += '<li><strong>Operational Efficiency:</strong> Eliminate double-bookings, automatic no-show reclamation, reduce help desk tickets by 30-40%</li>';
+        }
+      }
+      
+      content += '</ul>';
+      
+      // Implementation approach
+      content += '<h4 style="color: #1e293b; margin-top: 20px;">Implementation Approach</h4>';
+      content += '<p>We follow a proven implementation methodology ensuring minimal disruption and rapid time-to-value. Our typical timeline includes: Discovery & Planning (2-3 weeks), System Configuration & Integration (3-4 weeks), User Training & Change Management (2 weeks), Go-Live & Optimization (ongoing). Most clients see measurable ROI within 3-6 months of deployment.</p>';
+      
+      return content;
     }
     
-    function adjustColor(color, amount) {
-      return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+    function generateDifferentiators(product, productAnalysis) {
+      var html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">';
+      
+      // Product-specific differentiators
+      if (product === 'visitor') {
+        html += '<div style="padding: 15px; background: white; border: 2px solid #3b82f6; border-radius: 8px;"><div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">🔒 Enterprise Security</div><div style="font-size: 0.9rem; color: #475569;">Watchlist screening, badge printing, NDA capture, full audit trail</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #10b981; border-radius: 8px;"><div style="font-weight: 600; color: #065f46; margin-bottom: 5px;">⚡ 60-70% Faster Check-in</div><div style="font-size: 0.9rem; color: #475569;">Pre-registration, mobile check-in, automated host notifications</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #8b5cf6; border-radius: 8px;"><div style="font-weight: 600; color: #5b21b6; margin-bottom: 5px;">📊 Real-Time Visibility</div><div style="font-size: 0.9rem; color: #475569;">Live dashboard, capacity alerts, emergency mustering, compliance reports</div></div>';
+      } else if (product === 'workplace') {
+        html += '<div style="padding: 15px; background: white; border: 2px solid #3b82f6; border-radius: 8px;"><div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">💰 10-15% Cost Reduction</div><div style="font-size: 0.9rem; color: #475569;">Data-driven portfolio optimization, space reclamation, utilization insights</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #10b981; border-radius: 8px;"><div style="font-weight: 600; color: #065f46; margin-bottom: 5px;">📈 Real-Time Analytics</div><div style="font-size: 0.9rem; color: #475569;">Live occupancy tracking, peak-time visibility, forecasting models</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #8b5cf6; border-radius: 8px;"><div style="font-weight: 600; color: #5b21b6; margin-bottom: 5px;">🔄 Hybrid Work Ready</div><div style="font-size: 0.9rem; color: #475569;">Dynamic reservations, team coordination, 60-70% adoption rates</div></div>';
+      } else if (product === 'asset') {
+        html += '<div style="padding: 15px; background: white; border: 2px solid #3b82f6; border-radius: 8px;"><div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">📉 30-40% Less Downtime</div><div style="font-size: 0.9rem; color: #475569;">Preventive maintenance scheduling, predictive analytics, automated workflows</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #10b981; border-radius: 8px;"><div style="font-weight: 600; color: #065f46; margin-bottom: 5px;">💵 15-25% Asset Life Extension</div><div style="font-size: 0.9rem; color: #475569;">Proactive maintenance, complete history tracking, data-driven decisions</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #8b5cf6; border-radius: 8px;"><div style="font-weight: 600; color: #5b21b6; margin-bottom: 5px;">✅ 100% Compliance</div><div style="font-size: 0.9rem; color: #475569;">Automated inspections, audit trails, regulatory reporting, certifications</div></div>';
+      } else if (product === 'engage') {
+        html += '<div style="padding: 15px; background: white; border: 2px solid #3b82f6; border-radius: 8px;"><div style="font-weight: 600; color: #1e40af; margin-bottom: 5px;">🎯 60-70% Adoption Rate</div><div style="font-size: 0.9rem; color: #475569;">Intuitive interface, see teammates, one-click booking, mobile-first</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #10b981; border-radius: 8px;"><div style="font-weight: 600; color: #065f46; margin-bottom: 5px;">🤝 Improved Collaboration</div><div style="font-size: 0.9rem; color: #475569;">Team visibility, coordinated office days, proximity booking</div></div>';
+        html += '<div style="padding: 15px; background: white; border: 2px solid #8b5cf6; border-radius: 8px;"><div style="font-weight: 600; color: #5b21b6; margin-bottom: 5px;">📊 Utilization Insights</div><div style="font-size: 0.9rem; color: #475569;">Real-time capacity, usage patterns, space optimization opportunities</div></div>';
+      }
+      
+      html += '</div>';
+      
+      html += '<div style="margin-top: 20px; padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;">';
+      html += '<div style="font-weight: 600; color: #92400e; margin-bottom: 10px;">💡 Pro Tip: Customizing Your Response</div>';
+      html += '<div style="color: #92400e; font-size: 0.9rem; line-height: 1.6;">The content above is based on requirements detected in the RFP. To strengthen your response: (1) Replace generic metrics with your actual customer success stories, (2) Add specific product screenshots or demos that address their exact requirements, (3) Reference their company size/industry in ROI calculations, (4) Include 2-3 customer testimonials from similar organizations.</div>';
+      html += '</div>';
+      
+      return html;
+    }
+    
+    function copyResponseContent() {
+      var content = document.getElementById('responseContentText').innerText;
+      navigator.clipboard.writeText(content).then(function() {
+        var btn = event.target;
+        var originalText = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.style.background = '#059669';
+        setTimeout(function() {
+          btn.innerHTML = originalText;
+          btn.style.background = '#10b981';
+        }, 2000);
+      });
     }
 
     document.addEventListener('DOMContentLoaded', function() {
