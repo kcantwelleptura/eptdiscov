@@ -4394,22 +4394,59 @@
     // ===== RFP ANALYZER FUNCTIONS =====
     
     var rfpAnalysisData = null;
+    var selectedRFPProduct = null;
     
     function showRFPAnalyzer() {
       document.getElementById('rfpAnalyzerModal').style.display = 'block';
-      document.getElementById('rfpUploadSection').style.display = 'block';
+      document.getElementById('rfpProductSelection').style.display = 'block';
+      document.getElementById('rfpUploadSection').style.display = 'none';
       document.getElementById('rfpAnalysisResults').style.display = 'none';
+      selectedRFPProduct = null;
+      
+      // Reset product button styles
+      var buttons = document.querySelectorAll('.rfp-product-btn');
+      buttons.forEach(function(btn) {
+        btn.style.borderColor = '#e2e8f0';
+        btn.style.background = 'white';
+      });
+    }
+    
+    function selectRFPProduct(product) {
+      selectedRFPProduct = product;
+      
+      // Update button styles to show selection
+      var buttons = document.querySelectorAll('.rfp-product-btn');
+      buttons.forEach(function(btn) {
+        btn.style.borderColor = '#e2e8f0';
+        btn.style.background = 'white';
+      });
+      event.target.closest('button').style.borderColor = products[product].color;
+      event.target.closest('button').style.background = products[product].color + '15';
+      
+      // Show upload section
+      document.getElementById('rfpUploadSection').style.display = 'block';
+      
+      // Scroll to upload section
+      setTimeout(function() {
+        document.getElementById('rfpUploadSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
     }
     
     function closeRFPAnalyzer() {
       document.getElementById('rfpAnalyzerModal').style.display = 'none';
       rfpAnalysisData = null;
+      selectedRFPProduct = null;
     }
     
     async function analyzeRFP(file) {
       if (!file) return;
+      if (!selectedRFPProduct) {
+        alert('Please select a product first');
+        return;
+      }
       
-      document.getElementById('rfpFileName').textContent = 'Analyzing: ' + file.name;
+      document.getElementById('rfpFileName').textContent = 'Analyzing: ' + file.name + ' for ' + products[selectedRFPProduct].name;
+      document.getElementById('rfpProductSelection').style.display = 'none';
       document.getElementById('rfpUploadSection').style.display = 'none';
       document.getElementById('rfpAnalysisResults').style.display = 'block';
       
@@ -4418,8 +4455,8 @@
       
       try {
         var text = await extractTextFromFile(file);
-        var analysis = analyzeRFPText(text);
-        displayRFPAnalysis(analysis, file.name);
+        var analysis = analyzeRFPText(text, selectedRFPProduct);
+        displayRFPAnalysis(analysis, file.name, selectedRFPProduct);
       } catch (error) {
         document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; color: #991b1b;"><strong>Error:</strong> Could not analyze file. Please try a different format.</div>';
       }
@@ -4443,7 +4480,7 @@
       });
     }
     
-    function analyzeRFPText(text) {
+    function analyzeRFPText(text, targetProduct) {
       var lowerText = text.toLowerCase();
       
       // Define keywords for each category and product
@@ -4474,91 +4511,78 @@
         }
       };
       
-      var results = {
-        visitor: { score: 0, categories: {} },
-        workplace: { score: 0, categories: {} },
-        asset: { score: 0, categories: {} },
-        engage: { score: 0, categories: {} }
+      var result = {
+        product: targetProduct,
+        categories: {}
       };
       
-      // Count keyword matches
-      for (var product in categoryKeywords) {
-        for (var category in categoryKeywords[product]) {
-          var keywords = categoryKeywords[product][category];
-          var matches = 0;
-          for (var i = 0; i < keywords.length; i++) {
-            var regex = new RegExp(keywords[i], 'gi');
-            var count = (text.match(regex) || []).length;
-            matches += count;
-          }
-          if (matches > 0) {
-            results[product].categories[category] = matches;
-            results[product].score += matches;
-          }
+      // Only analyze for the selected product
+      var keywords = categoryKeywords[targetProduct];
+      for (var category in keywords) {
+        var keywordList = keywords[category];
+        var matches = 0;
+        for (var i = 0; i < keywordList.length; i++) {
+          var regex = new RegExp(keywordList[i], 'gi');
+          var count = (text.match(regex) || []).length;
+          matches += count;
+        }
+        if (matches > 0) {
+          result.categories[category] = matches;
         }
       }
       
-      return results;
+      return result;
     }
     
-    function displayRFPAnalysis(analysis, fileName) {
-      document.getElementById('rfpFileName').textContent = 'Analysis: ' + fileName;
+    function displayRFPAnalysis(analysis, fileName, targetProduct) {
+      document.getElementById('rfpFileName').textContent = 'Analysis: ' + fileName + ' → ' + products[targetProduct].name;
       
-      // Find top product
-      var topProduct = null;
-      var topScore = 0;
-      for (var product in analysis) {
-        if (analysis[product].score > topScore) {
-          topScore = analysis[product].score;
-          topProduct = product;
-        }
+      var totalMatches = 0;
+      for (var cat in analysis.categories) {
+        totalMatches += analysis.categories[cat];
       }
       
-      if (topScore === 0) {
-        document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;"><strong>⚠️ No clear value drivers detected</strong><br><span style="color: #92400e;">The RFP may be too general or doesn\'t match our product categories. Try uploading a different section or document.</span></div>';
+      if (totalMatches === 0) {
+        document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;"><strong>⚠️ No clear value drivers detected</strong><br><span style="color: #92400e;">The RFP may be too general or doesn\'t match our product categories. Consider reviewing the document or trying a different section.</span></div>';
         return;
       }
       
-      rfpAnalysisData = { product: topProduct, analysis: analysis };
+      rfpAnalysisData = { product: targetProduct, analysis: analysis };
       
-      // Display value drivers identified
+      // Display requirements analysis
+      var productName = products[targetProduct].name;
+      var color = products[targetProduct].color;
+      
       var html = '<h3 style="color: #1e293b; margin-bottom: 15px;">🎯 Requirements Analysis</h3>';
       
-      for (var product in analysis) {
-        if (analysis[product].score > 0) {
-          var productName = products[product].name;
-          var color = products[product].color;
-          
-          html += '<div style="margin-bottom: 20px; padding: 20px; background: white; border-left: 4px solid ' + color + '; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">';
-          html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
-          html += '<h4 style="margin: 0; color: #1e293b;">' + productName + '</h4>';
-          html += '<span style="background: ' + color + '; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">' + analysis[product].score + ' requirement mentions</span>';
-          html += '</div>';
-          
-          if (Object.keys(analysis[product].categories).length > 0) {
-            html += '<div style="margin-top: 10px;">';
-            for (var category in analysis[product].categories) {
-              var count = analysis[product].categories[category];
-              html += '<div style="display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; margin: 4px; font-size: 0.85rem;">';
-              html += category + ' <strong>(' + count + ')</strong>';
-              html += '</div>';
-            }
-            html += '</div>';
-          }
-          
+      html += '<div style="margin-bottom: 20px; padding: 20px; background: white; border-left: 4px solid ' + color + '; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">';
+      html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+      html += '<h4 style="margin: 0; color: #1e293b;">' + productName + '</h4>';
+      html += '<span style="background: ' + color + '; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">' + totalMatches + ' requirement mentions</span>';
+      html += '</div>';
+      
+      if (Object.keys(analysis.categories).length > 0) {
+        html += '<div style="margin-top: 10px;">';
+        for (var category in analysis.categories) {
+          var count = analysis.categories[category];
+          html += '<div style="display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; margin: 4px; font-size: 0.85rem;">';
+          html += category + ' <strong>(' + count + ')</strong>';
           html += '</div>';
         }
+        html += '</div>';
       }
+      
+      html += '</div>';
       
       document.getElementById('rfpValueDrivers').innerHTML = html;
       
       // Generate value-driven response content
-      var responseContent = generateResponseContent(topProduct, analysis[topProduct]);
+      var responseContent = generateResponseContent(targetProduct, analysis);
       
       var recHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">📝 Suggested Response Content</h3>';
       recHtml += '<div style="padding: 20px; background: #f0fdf4; border: 2px solid #10b981; border-radius: 8px; margin-bottom: 20px;">';
       recHtml += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">';
-      recHtml += '<div style="font-size: 1.1rem; font-weight: 600; color: #065f46;">Value-Driven Response Framework for ' + products[topProduct].name + '</div>';
+      recHtml += '<div style="font-size: 1.1rem; font-weight: 600; color: #065f46;">Value-Driven Response Framework for ' + productName + '</div>';
       recHtml += '<button onclick="copyResponseContent()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">📋 Copy All</button>';
       recHtml += '</div>';
       recHtml += '<div style="color: #065f46; font-size: 0.9rem; margin-bottom: 15px;">Use this content to craft compelling responses that address their requirements while emphasizing value and ROI.</div>';
@@ -4571,7 +4595,7 @@
       
       // Key differentiators
       var diffHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">✨ Key Differentiators to Emphasize</h3>';
-      diffHtml += generateDifferentiators(topProduct, analysis[topProduct]);
+      diffHtml += generateDifferentiators(targetProduct, analysis);
       
       document.getElementById('rfpMissingInfo').innerHTML = diffHtml;
       
@@ -4751,11 +4775,37 @@
     <div style="background: white; max-width: 900px; margin: 50px auto; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
       <div style="padding: 30px; border-bottom: 2px solid #e2e8f0;">
         <h2 style="margin: 0; color: #1e293b; font-size: 1.5rem;">📄 RFP Value Driver Analysis</h2>
-        <p style="color: #64748b; margin: 10px 0 0 0;">Upload an RFP document to identify key requirements and value drivers</p>
+        <p style="color: #64748b; margin: 10px 0 0 0;">Select product and upload RFP to generate response content</p>
       </div>
       
       <div style="padding: 30px;">
-        <div id="rfpUploadSection">
+        <!-- Product Selection -->
+        <div id="rfpProductSelection">
+          <h3 style="color: #1e293b; margin: 0 0 15px 0;">Step 1: Select Product</h3>
+          <p style="color: #64748b; margin: 0 0 20px 0; font-size: 0.9rem;">Which product is this RFP for?</p>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px;">
+            <button onclick="selectRFPProduct('visitor')" class="rfp-product-btn" style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'; this.style.background='#eff6ff'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+              <div style="font-weight: 600; color: #1e293b; margin-bottom: 5px;">🏢 Visitor Management</div>
+              <div style="font-size: 0.85rem; color: #64748b;">Check-in, security, compliance</div>
+            </button>
+            <button onclick="selectRFPProduct('workplace')" class="rfp-product-btn" style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s;" onmouseover="this.style.borderColor='#10b981'; this.style.background='#f0fdf4'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+              <div style="font-weight: 600; color: #1e293b; margin-bottom: 5px;">🏗️ Workplace Management</div>
+              <div style="font-size: 0.85rem; color: #64748b;">Space planning, utilization, cost</div>
+            </button>
+            <button onclick="selectRFPProduct('asset')" class="rfp-product-btn" style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s;" onmouseover="this.style.borderColor='#f59e0b'; this.style.background='#fffbeb'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+              <div style="font-weight: 600; color: #1e293b; margin-bottom: 5px;">🔧 Asset Management</div>
+              <div style="font-size: 0.85rem; color: #64748b;">CMMS, maintenance, work orders</div>
+            </button>
+            <button onclick="selectRFPProduct('engage')" class="rfp-product-btn" style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.background='#faf5ff'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='white'">
+              <div style="font-weight: 600; color: #1e293b; margin-bottom: 5px;">👥 Employee Engagement</div>
+              <div style="font-size: 0.85rem; color: #64748b;">Desk booking, hybrid work</div>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Upload Section (initially hidden) -->
+        <div id="rfpUploadSection" style="display: none;">
+          <h3 style="color: #1e293b; margin: 0 0 15px 0;">Step 2: Upload RFP Document</h3>
           <div style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 40px; text-align: center; background: #f8fafc;">
             <div style="font-size: 3rem; margin-bottom: 15px;">📎</div>
             <input type="file" id="rfpFileInput" accept=".pdf,.docx,.txt" style="display: none;" onchange="analyzeRFP(this.files[0])">
