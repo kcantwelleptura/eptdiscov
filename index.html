@@ -468,6 +468,7 @@
         </div>
         <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           <button onclick="showSessionManager()" style="background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#64748b'">📂 Load Saved Session</button>
+          <button onclick="showRFPAnalyzer()" style="background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;" onmouseover="this.style.background='#7c3aed'" onmouseout="this.style.background='#8b5cf6'">📄 Analyze RFP Document</button>
         </div>
       </div>
       
@@ -4389,6 +4390,206 @@
         resetTool();
       }
     }
+    
+    // ===== RFP ANALYZER FUNCTIONS =====
+    
+    var rfpAnalysisData = null;
+    
+    function showRFPAnalyzer() {
+      document.getElementById('rfpAnalyzerModal').style.display = 'block';
+      document.getElementById('rfpUploadSection').style.display = 'block';
+      document.getElementById('rfpAnalysisResults').style.display = 'none';
+    }
+    
+    function closeRFPAnalyzer() {
+      document.getElementById('rfpAnalyzerModal').style.display = 'none';
+      rfpAnalysisData = null;
+    }
+    
+    async function analyzeRFP(file) {
+      if (!file) return;
+      
+      document.getElementById('rfpFileName').textContent = 'Analyzing: ' + file.name;
+      document.getElementById('rfpUploadSection').style.display = 'none';
+      document.getElementById('rfpAnalysisResults').style.display = 'block';
+      
+      // Show loading state
+      document.getElementById('rfpValueDrivers').innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 2rem; margin-bottom: 10px;">⏳</div><div style="color: #64748b;">Analyzing RFP document...</div></div>';
+      
+      try {
+        var text = await extractTextFromFile(file);
+        var analysis = analyzeRFPText(text);
+        displayRFPAnalysis(analysis, file.name);
+      } catch (error) {
+        document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; color: #991b1b;"><strong>Error:</strong> Could not analyze file. Please try a different format.</div>';
+      }
+    }
+    
+    async function extractTextFromFile(file) {
+      return new Promise((resolve, reject) => {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          // For now, handle text files directly
+          // PDF and DOCX would need additional libraries
+          if (file.type === 'text/plain') {
+            resolve(e.target.result);
+          } else {
+            // For PDF/DOCX, extract what we can or ask user to copy/paste
+            resolve(e.target.result);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+    }
+    
+    function analyzeRFPText(text) {
+      var lowerText = text.toLowerCase();
+      
+      // Define keywords for each category and product
+      var categoryKeywords = {
+        'visitor': {
+          'Security & Compliance': ['visitor', 'guest', 'check-in', 'badge', 'watchlist', 'security', 'compliance', 'screening', 'nda', 'emergency'],
+          'Operational Efficiency': ['reception', 'front desk', 'notification', 'host', 'workflow', 'automation', 'sign-in'],
+          'Cost Savings': ['reduce cost', 'efficiency', 'manual', 'staff time', 'paper'],
+          'User Experience': ['visitor experience', 'guest experience', 'self-service', 'mobile', 'branded']
+        },
+        'workplace': {
+          'Cost Savings': ['real estate', 'lease', 'occupancy', 'utilization', 'cost per', 'space optimization', 'downsizing'],
+          'Operational Efficiency': ['space planning', 'move management', 'hoteling', 'booking', 'reservation'],
+          'Data & Analytics': ['reporting', 'analytics', 'dashboard', 'utilization data', 'occupancy rate', 'metrics'],
+          'Employee Experience': ['hybrid', 'flexible', 'collaboration', 'find desk', 'team proximity']
+        },
+        'asset': {
+          'Operational Efficiency': ['maintenance', 'work order', 'preventive', 'pm schedule', 'cmms', 'asset tracking'],
+          'Cost Savings': ['downtime', 'reactive', 'breakdown', 'asset life', 'replacement', 'budget'],
+          'Compliance': ['audit', 'compliance', 'regulatory', 'safety', 'inspection', 'certification'],
+          'Data & Analytics': ['reporting', 'history', 'analytics', 'kpi', 'metrics', 'performance']
+        },
+        'engage': {
+          'Employee Experience': ['desk booking', 'room booking', 'employee app', 'mobile', 'collaboration', 'team'],
+          'Space Utilization': ['utilization', 'occupancy', 'usage', 'capacity', 'availability'],
+          'Operational Efficiency': ['reservation', 'scheduling', 'automated', 'self-service'],
+          'Data & Analytics': ['analytics', 'reporting', 'insights', 'dashboard', 'metrics']
+        }
+      };
+      
+      var results = {
+        visitor: { score: 0, categories: {} },
+        workplace: { score: 0, categories: {} },
+        asset: { score: 0, categories: {} },
+        engage: { score: 0, categories: {} }
+      };
+      
+      // Count keyword matches
+      for (var product in categoryKeywords) {
+        for (var category in categoryKeywords[product]) {
+          var keywords = categoryKeywords[product][category];
+          var matches = 0;
+          for (var i = 0; i < keywords.length; i++) {
+            var regex = new RegExp(keywords[i], 'gi');
+            var count = (text.match(regex) || []).length;
+            matches += count;
+          }
+          if (matches > 0) {
+            results[product].categories[category] = matches;
+            results[product].score += matches;
+          }
+        }
+      }
+      
+      return results;
+    }
+    
+    function displayRFPAnalysis(analysis, fileName) {
+      document.getElementById('rfpFileName').textContent = 'Analysis: ' + fileName;
+      
+      // Find top product
+      var topProduct = null;
+      var topScore = 0;
+      for (var product in analysis) {
+        if (analysis[product].score > topScore) {
+          topScore = analysis[product].score;
+          topProduct = product;
+        }
+      }
+      
+      if (topScore === 0) {
+        document.getElementById('rfpValueDrivers').innerHTML = '<div style="padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;"><strong>⚠️ No clear value drivers detected</strong><br><span style="color: #92400e;">The RFP may be too general or doesn\'t match our product categories. Consider running a discovery call instead.</span></div>';
+        return;
+      }
+      
+      rfpAnalysisData = { product: topProduct, analysis: analysis };
+      
+      // Display value drivers
+      var html = '<h3 style="color: #1e293b; margin-bottom: 15px;">🎯 Identified Value Drivers</h3>';
+      
+      for (var product in analysis) {
+        if (analysis[product].score > 0) {
+          var productName = products[product].name;
+          var color = products[product].color;
+          
+          html += '<div style="margin-bottom: 20px; padding: 20px; background: white; border-left: 4px solid ' + color + '; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">';
+          html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+          html += '<h4 style="margin: 0; color: #1e293b;">' + productName + '</h4>';
+          html += '<span style="background: ' + color + '; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">' + analysis[product].score + ' mentions</span>';
+          html += '</div>';
+          
+          if (Object.keys(analysis[product].categories).length > 0) {
+            html += '<div style="margin-top: 10px;">';
+            for (var category in analysis[product].categories) {
+              var count = analysis[product].categories[category];
+              html += '<div style="display: inline-block; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; margin: 4px; font-size: 0.85rem;">';
+              html += category + ' <strong>(' + count + ')</strong>';
+              html += '</div>';
+            }
+            html += '</div>';
+          }
+          
+          html += '</div>';
+        }
+      }
+      
+      document.getElementById('rfpValueDrivers').innerHTML = html;
+      
+      // Product recommendation
+      var recHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">💡 Recommendation</h3>';
+      recHtml += '<div style="padding: 20px; background: linear-gradient(135deg, ' + products[topProduct].color + ' 0%, ' + adjustColor(products[topProduct].color, -20) + ' 100%); color: white; border-radius: 8px;">';
+      recHtml += '<div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">Start with ' + products[topProduct].name + ' Discovery</div>';
+      recHtml += '<div style="opacity: 0.95;">This product has the strongest alignment with the RFP requirements. Run a guided discovery to uncover specific pain points and build your response.</div>';
+      recHtml += '</div>';
+      
+      document.getElementById('rfpProductRecommendation').innerHTML = recHtml;
+      
+      // Missing info / follow-up questions
+      var missingHtml = '<h3 style="color: #1e293b; margin: 25px 0 15px 0;">❓ Key Questions to Ask</h3>';
+      missingHtml += '<div style="padding: 20px; background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px;">';
+      missingHtml += '<p style="margin: 0 0 10px 0; color: #92400e; font-weight: 600;">The RFP tells you WHAT they want, but not WHY. Use discovery to uncover:</p>';
+      missingHtml += '<ul style="margin: 0; padding-left: 20px; color: #92400e;">';
+      missingHtml += '<li>What\'s driving this RFP right now? (Timeline & urgency)</li>';
+      missingHtml += '<li>What problems are they trying to solve? (Pain points)</li>';
+      missingHtml += '<li>How are they measuring success? (KPIs & ROI expectations)</li>';
+      missingHtml += '<li>Who are the key stakeholders? (Decision makers)</li>';
+      missingHtml += '<li>What\'s their current process/system? (Competitive intel)</li>';
+      missingHtml += '</ul>';
+      missingHtml += '</div>';
+      
+      document.getElementById('rfpMissingInfo').innerHTML = missingHtml;
+      
+      // Show start discovery button
+      document.getElementById('rfpStartDiscoveryBtn').style.display = 'inline-block';
+    }
+    
+    function startDiscoveryFromRFP() {
+      if (!rfpAnalysisData) return;
+      
+      closeRFPAnalyzer();
+      selectProduct(rfpAnalysisData.product);
+    }
+    
+    function adjustColor(color, amount) {
+      return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
       initCounts();
@@ -4404,5 +4605,42 @@
       document.getElementById('submitAllBtn').addEventListener('click', showResults);
     });
   </script>
+  <!-- RFP Analyzer Modal -->
+  <div id="rfpAnalyzerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+    <div style="background: white; max-width: 900px; margin: 50px auto; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+      <div style="padding: 30px; border-bottom: 2px solid #e2e8f0;">
+        <h2 style="margin: 0; color: #1e293b; font-size: 1.5rem;">📄 RFP Value Driver Analysis</h2>
+        <p style="color: #64748b; margin: 10px 0 0 0;">Upload an RFP document to identify key requirements and value drivers</p>
+      </div>
+      
+      <div style="padding: 30px;">
+        <div id="rfpUploadSection">
+          <div style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 40px; text-align: center; background: #f8fafc;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">📎</div>
+            <input type="file" id="rfpFileInput" accept=".pdf,.docx,.txt" style="display: none;" onchange="analyzeRFP(this.files[0])">
+            <button onclick="document.getElementById('rfpFileInput').click()" style="background: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600;">Choose RFP Document</button>
+            <p style="color: #64748b; margin-top: 15px; font-size: 0.9rem;">Supports PDF, Word (.docx), or Text files</p>
+          </div>
+        </div>
+        
+        <div id="rfpAnalysisResults" style="display: none;">
+          <div style="margin-bottom: 25px; padding: 20px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 6px;">
+            <h3 style="margin: 0 0 10px 0; color: #1e40af;">Analysis Complete</h3>
+            <p style="margin: 0; color: #1e40af; font-size: 0.95rem;" id="rfpFileName"></p>
+          </div>
+          
+          <div id="rfpValueDrivers"></div>
+          <div id="rfpProductRecommendation"></div>
+          <div id="rfpMissingInfo"></div>
+        </div>
+      </div>
+      
+      <div style="padding: 20px 30px; border-top: 2px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="closeRFPAnalyzer()" style="background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Close</button>
+        <button id="rfpStartDiscoveryBtn" onclick="startDiscoveryFromRFP()" style="display: none; background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Start Guided Discovery →</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
